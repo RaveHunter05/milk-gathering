@@ -35,7 +35,7 @@ pip install -r requirements.txt
 ### Run
 
 ```
-python -m uvicorn main:app --reload
+python -m uvicorn src.api:app --reload
 ```
 
 ## Tables
