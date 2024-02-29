@@ -86,7 +86,6 @@ class MilkRouteUpdate(BaseModel):
     description: str
     date: date
 
-
 class Driver(BaseModel):
     id: int
     name: str

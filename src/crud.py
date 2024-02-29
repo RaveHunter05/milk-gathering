@@ -6,8 +6,8 @@ from . import models, schemas
 # Milk Price
 def get_milk_price(db: Session, milk_price_id: int):
     return (
-        db.query(models.MilkPrice).filter(models.MilkPrice.id == milk_price_id).first()
-    )
+            db.query(models.MilkPrice).filter(models.MilkPrice.id == milk_price_id).first()
+            )
 
 
 def get_milk_prices(db: Session, skip: int = 0, limit: int = 100):
@@ -32,8 +32,8 @@ def update_milk_price(db: Session, milk_price: schemas.MilkPriceUpdate):
 # Deduction
 def get_deduction(db: Session, deduction_id: int):
     return (
-        db.query(models.Deduction).filter(models.Deduction.id == deduction_id).first()
-    )
+            db.query(models.Deduction).filter(models.Deduction.id == deduction_id).first()
+            )
 
 
 def get_deductions(db: Session, skip: int = 0, limit: int = 100):
@@ -42,11 +42,11 @@ def get_deductions(db: Session, skip: int = 0, limit: int = 100):
 
 def create_deduction(db: Session, deduction: schemas.DeductionCreate):
     db_deduction = models.Deduction(
-        name=deduction.name,
-        description=deduction.description,
-        price=deduction.price,
-        date=deduction.date,
-    )
+            name=deduction.name,
+            description=deduction.description,
+            price=deduction.price,
+            date=deduction.date,
+            )
     db.add(db_deduction)
     db.commit()
     db.refresh(db_deduction)
@@ -73,8 +73,8 @@ def get_routes(db: Session, skip: int = 0, limit: int = 100):
 
 def create_route(db: Session, route: schemas.MilkRouteCreate):
     route = models.MilkRoute(
-        name=route.name, description=route.description, date=route.date
-    )
+            name=route.name, description=route.description, date=route.date
+            )
     db.add(route)
     db.commit()
     db.refresh(route)
@@ -91,12 +91,11 @@ def update_route(db: Session, item_id: str, route: schemas.MilkRouteUpdate):
 
 def delete_route(db: Session, route_id: int):
     db_route = (
-        db.query(models.MilkRoute).filter(models.MilkRoute.id == route_id).first()
-    )
+            db.query(models.MilkRoute).filter(models.MilkRoute.id == route_id).first()
+            )
     db.delete(db_route)
     db.commit()
     return db_route
-
 
 # Driver
 def get_driver(db: Session, driver_id: int):
@@ -126,10 +125,10 @@ def update_driver(db: Session, driver: schemas.DriverUpdate):
 # Transport Cost
 def get_transport_cost(db: Session, transport_cost_id: int):
     return (
-        db.query(models.TransportCost)
-        .filter(models.TransportCost.id == transport_cost_id)
-        .first()
-    )
+            db.query(models.TransportCost)
+            .filter(models.TransportCost.id == transport_cost_id)
+            .first()
+            )
 
 
 def get_transport_costs(db: Session, skip: int = 0, limit: int = 100):
@@ -138,8 +137,8 @@ def get_transport_costs(db: Session, skip: int = 0, limit: int = 100):
 
 def create_transport_cost(db: Session, transport_cost: schemas.TransportCostCreate):
     db_transport_cost = models.TransportCost(
-        cost=transport_cost.cost, date=transport_cost.date
-    )
+            cost=transport_cost.cost, date=transport_cost.date
+            )
     db.add(db_transport_cost)
     db.commit()
     db.refresh(db_transport_cost)
@@ -148,8 +147,8 @@ def create_transport_cost(db: Session, transport_cost: schemas.TransportCostCrea
 
 def update_transport_cost(db: Session, transport_cost: schemas.TransportCostUpdate):
     transport_cost = (
-        db.query(models.TransportCost).filter_by(id=transport_cost.id).first()
-    )
+            db.query(models.TransportCost).filter_by(id=transport_cost.id).first()
+            )
     transport_cost.cost = transport_cost.Cost
     transport_cost.name = transport_cost.name
     transport_cost.description = transport_cost.description
@@ -203,10 +202,10 @@ def create_payment(db: Session, payment: schemas.PaymentCreate):
 # Collected Milk
 def get_collected_milk(db: Session, collected_milk_id: int):
     return (
-        db.query(models.CollectedMilk)
-        .filter(models.CollectedMilk.id == collected_milk_id)
-        .first()
-    )
+            db.query(models.CollectedMilk)
+            .filter(models.CollectedMilk.id == collected_milk_id)
+            .first()
+            )
 
 
 def get_collected_milks(db: Session, skip: int = 0, limit: int = 100):
@@ -215,8 +214,8 @@ def get_collected_milks(db: Session, skip: int = 0, limit: int = 100):
 
 def create_collected_milk(db: Session, collected_milk: schemas.CollectedMilkCreate):
     db_collected_milk = models.CollectedMilk(
-        quantity=collected_milk.quantity, date=collected_milk.date
-    )
+            quantity=collected_milk.quantity, date=collected_milk.date
+            )
     db.add(db_collected_milk)
     db.commit()
     db.refresh(db_collected_milk)
@@ -225,9 +224,45 @@ def create_collected_milk(db: Session, collected_milk: schemas.CollectedMilkCrea
 
 def update_collected_milk(db: Session, collected_milk: schemas.CollectedMilkUpdate):
     db_collected_milk = models.CollectedMilk(
-        quantity=collected_milk.quantity, date=collected_milk.date
-    )
+            quantity=collected_milk.quantity, date=collected_milk.date
+            )
     db.add(db_collected_milk)
     db.commit()
     db.refresh(db_collected_milk)
     return db_collected_milk
+
+# Reports
+
+def get_collected_milk_report_by_date(
+        db: Session, start_date: str, end_date: str
+        ):
+    return (
+            db.query(models.CollectedMilk)
+            .filter(models.CollectedMilk.date >= start_date)
+            .filter(models.CollectedMilk.date <= end_date)
+            .group_by(models.CollectedMilk.route_id)
+            .all()
+            )
+
+def get_payments_report_by_date(
+        db: Session, start_date: str, end_date: str
+        ):
+    return (
+            db.query(models.Payment)
+            .filter(models.Payment.date >= start_date)
+            .filter(models.Payment.date <= end_date)
+            .group_by(models.Payment.producer_id)
+            .all()
+            )
+
+def get_collected_report_by_producer_and_date(
+        db: Session, producer_id: int, start_date: str, end_date: str
+        ):
+    return (
+            db.query(models.CollectedMilk)
+            .filter(models.CollectedMilk.date >= start_date)
+            .filter(models.CollectedMilk.date <= end_date)
+            .filter(models.CollectedMilk.producer_id == producer_id)
+            .group_by(models.CollectedMilk.producer_id)
+            .all()
+            )
