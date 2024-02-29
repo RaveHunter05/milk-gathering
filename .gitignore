@@ -1,0 +1,11 @@
+.environment
+.env
+.env.local
+
+# All pycaches 
+__pycache__
+**/__pycache__/
+**/**/__pycache__/
+
+# Database sqlite
+test.db
