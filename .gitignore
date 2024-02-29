@@ -9,3 +9,6 @@ __pycache__
 
 # Database sqlite
 test.db
+
+# Virtual environment
+venv/

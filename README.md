@@ -8,6 +8,36 @@ As every fast api program, it uses OpenAPI to document, the route is this:
 localhost:8000/docs
 ```
 
+## Commands
+
+### Create a virtual environment
+
+```
+python -m venv venv
+```
+
+### Activate the virtual environment
+
+```
+source venv/bin/activate
+```
+
+### Generate requirements
+```
+pip freeze > requirements.txt
+```
+
+### Install requirements
+```
+pip install -r requirements.txt
+```
+
+### Run
+
+```
+python -m uvicorn main:app --reload
+```
+
 ## Tables
 
 - User
