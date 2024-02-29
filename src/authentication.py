@@ -11,13 +11,9 @@ from datetime import datetime, timedelta, timezone
 
 from . import schemas, models
 
-import environ
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-env = environ.Env()
 
 from dependencies import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 

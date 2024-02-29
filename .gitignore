@@ -13,3 +13,4 @@ test.db
 # Virtual environment
 venv/
 .venv
+.vercel

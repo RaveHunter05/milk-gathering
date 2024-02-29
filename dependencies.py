@@ -8,18 +8,17 @@ from typing import List
 from src.database import SessionLocal, engine
 from sqlalchemy.orm import Session
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-import environ
-env = environ.Env()
-
-# read the .env file
-environ.Env.read_env()
-
 # .env values
-SECRET_KEY = env("SECRET_KEY")
-ALGORITHM = env("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(env("ACCESS_TOKEN_EXPIRE_MINUTES"))
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 
 def get_db():

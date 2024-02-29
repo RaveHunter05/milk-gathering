@@ -1,11 +1,6 @@
-from fastapi import FastAPI, HTTPException, status
-from dependencies import ACCESS_TOKEN_EXPIRE_MINUTES
+from fastapi import FastAPI
 
-from datetime import timedelta
-
-from src import schemas, models
-
-from src.authentication import authenticate_user, create_access_token
+from src import models
 
 from src.routers import payment, milk_routes, drivers, transport_costs, producers, auth, deductions, milk_prices
 
