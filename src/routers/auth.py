@@ -5,7 +5,6 @@ from dependencies import (
     status,
     get_db,
     Session,
-    List,
     ACCESS_TOKEN_EXPIRE_MINUTES,
     Annotated,
     OAuth2PasswordRequestForm,
