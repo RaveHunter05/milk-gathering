@@ -167,7 +167,7 @@ def get_producers(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_producer(db: Session, producer: schemas.ProducerCreate):
-    db_producer = models.Producer(name=producer.name)
+    db_producer = models.Producer(name=producer.name, description=producer.description, phone=producer.phone, date=producer.date)
     db.add(db_producer)
     db.commit()
     db.refresh(db_producer)

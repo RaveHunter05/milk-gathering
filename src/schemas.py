@@ -137,6 +137,7 @@ class Producer(BaseModel):
     id: int
     name: str
     description: str
+    date: date
 
     class Config:
         orm_mode = True
@@ -145,6 +146,8 @@ class Producer(BaseModel):
 class ProducerCreate(BaseModel):
     name: str
     description: str
+    phone: str
+    date: date
 
 
 class ProducerUpdate(BaseModel):
