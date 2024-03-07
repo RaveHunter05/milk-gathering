@@ -37,6 +37,7 @@ class MilkPrice(Base):
     __tablename__ = "milk_price"
 
     id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
     price = Column(Integer, index=True)
     date = Column(Date, index=True)
 

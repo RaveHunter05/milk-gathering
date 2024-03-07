@@ -26,6 +26,7 @@ class UserCreate(BaseModel):
 
 class MilkPrice(BaseModel):
     id: int
+    name: str
     price: int
     date: date
 
@@ -34,11 +35,13 @@ class MilkPrice(BaseModel):
 
 
 class MilkPriceCreate(BaseModel):
+    name: str
     price: int
     date: date
 
 
 class MilkPriceUpdate(BaseModel):
+    name: str
     price: int
     date: date
 

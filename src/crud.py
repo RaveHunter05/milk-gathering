@@ -15,7 +15,7 @@ def get_milk_prices(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_milk_price(db: Session, milk_price: schemas.MilkPriceCreate):
-    db_milk_price = models.MilkPrice(price=milk_price.price, date=milk_price.date)
+    db_milk_price = models.MilkPrice(price=milk_price.price, name=milk_price.name, date=milk_price.date)
     db.add(db_milk_price)
     db.commit()
     db.refresh(db_milk_price)
