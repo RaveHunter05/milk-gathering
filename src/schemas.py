@@ -218,3 +218,15 @@ class PaymentUpdate(BaseModel):
     deduction_id: Optional[int]
     transport_cost_id: Optional[int]
     collected_milk_id: int
+
+class CollectedMilkReport(BaseModel):
+    producer_id: int
+    total_quantity: float
+    max_quantity: float
+
+
+class CollectedMilkReportByRoute(BaseModel):
+    route_id: int
+    route_name: str
+    total_quantity: float
+    max_quantity: float

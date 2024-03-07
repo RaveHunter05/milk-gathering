@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 
+from sqlalchemy.sql import func
+
 from . import models, schemas
 
 
@@ -250,20 +252,17 @@ def get_payments_report_by_date(
         ):
     return (
             db.query(models.Payment)
+            .join(models.CollectedMilk, models.Payment.collected_milk_id == models.CollectedMilk.id)
             .filter(models.Payment.date >= start_date)
             .filter(models.Payment.date <= end_date)
-            .group_by(models.Payment.producer_id)
             .all()
             )
 
 def get_collected_report_by_producer_and_date(
-        db: Session, producer_id: int, start_date: str, end_date: str
+        db: Session, start_date: str, end_date: str
         ):
+    result = db.query(models.CollectedMilk.producer_id, func.max(models.CollectedMilk.quantity).label("max_quantity"),
+                      func.sum(models.CollectedMilk.quantity).label("total_quantity")) .group_by(models.CollectedMilk.producer_id) .all()
     return (
-            db.query(models.CollectedMilk)
-            .filter(models.CollectedMilk.date >= start_date)
-            .filter(models.CollectedMilk.date <= end_date)
-            .filter(models.CollectedMilk.producer_id == producer_id)
-            .group_by(models.CollectedMilk.producer_id)
-            .all()
+            result
             )

@@ -35,11 +35,10 @@ def payments_report_by_date(
     return crud.get_payments_report_by_date(db, start_date, end_date)
 
 # Collected report by producer and startting and end date
-@router.get("/collected-report-by-producer-and-date/", response_model=List[schemas.CollectedMilk], tags=["reports"])
+@router.get("/collected-report-by-producer-and-date/", response_model=List[schemas.CollectedMilkReport], tags=["reports"])
 def collected_report_by_producer_and_date(
-    producer_id: Annotated[int, "Producer id"],
     start_date: Annotated[str, "Start date"],
     end_date: Annotated[str, "End date"],
     db: Session = Depends(get_db),
 ):
-    return crud.get_collected_report_by_producer_and_date(db, producer_id, start_date, end_date)
+    return crud.get_collected_report_by_producer_and_date(db, start_date, end_date)
