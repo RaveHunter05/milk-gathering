@@ -1,5 +1,6 @@
 from datetime import date
 from pydantic import BaseModel
+from typing import Optional
 
 
 class Token(BaseModel):
@@ -161,13 +162,11 @@ class ProducerUpdate(BaseModel):
 class CollectedMilk(BaseModel):
     id: int
     date: date
-    amount: int
-    fat: int
-    snf: int
-    rate: int
-    total: int
+    type: str
+    quantity: int
     route_id: int
     driver_id: int
+    producer_id: int
 
     class Config:
         orm_mode = True
@@ -175,24 +174,20 @@ class CollectedMilk(BaseModel):
 
 class CollectedMilkCreate(BaseModel):
     date: date
-    amount: int
-    fat: int
-    snf: int
-    rate: int
-    total: int
+    type: str
+    quantity: int
     route_id: int
     driver_id: int
+    producer_id: int
 
 
 class CollectedMilkUpdate(BaseModel):
     date: date
-    amount: int
-    fat: int
-    snf: int
-    rate: int
-    total: int
+    type: str
+    quantity: int
     route_id: int
     driver_id: int
+    producer_id: int
 
 
 class Payment(BaseModel):
@@ -202,6 +197,7 @@ class Payment(BaseModel):
     deduction_id: int
     transport_cost_id: int
     collected_milk_id: int
+    milk_price_id: int
 
     class Config:
         orm_mode = True
@@ -210,14 +206,15 @@ class Payment(BaseModel):
 class PaymentCreate(BaseModel):
     date: date
     amount: int
-    deduction_id: int
-    transport_cost_id: int
+    deduction_id: Optional[int]
+    transport_cost_id: Optional[int]
     collected_milk_id: int
+    milk_price_id: int
 
 
 class PaymentUpdate(BaseModel):
     date: date
     amount: int
-    deduction_id: int
-    transport_cost_id: int
+    deduction_id: Optional[int]
+    transport_cost_id: Optional[int]
     collected_milk_id: int

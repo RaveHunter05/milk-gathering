@@ -193,12 +193,11 @@ def get_payments(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_payment(db: Session, payment: schemas.PaymentCreate):
-    db_payment = models.Payment(amount=payment.amount, date=payment.date)
+    db_payment = models.Payment(amount=payment.amount, date=payment.date, deduction_id=payment.deduction_id, transport_cost_id=payment.transport_cost_id, collected_milk_id=payment.collected_milk_id, milk_price_id=payment.milk_price_id)
     db.add(db_payment)
     db.commit()
     db.refresh(db_payment)
     return db_payment
-
 
 # Collected Milk
 def get_collected_milk(db: Session, collected_milk_id: int):
@@ -215,7 +214,8 @@ def get_collected_milks(db: Session, skip: int = 0, limit: int = 100):
 
 def create_collected_milk(db: Session, collected_milk: schemas.CollectedMilkCreate):
     db_collected_milk = models.CollectedMilk(
-            quantity=collected_milk.quantity, date=collected_milk.date
+            quantity=collected_milk.quantity, date=collected_milk.date, type=collected_milk.type,
+            route_id=collected_milk.route_id, driver_id=collected_milk.driver_id, producer_id=collected_milk.producer_id
             )
     db.add(db_collected_milk)
     db.commit()

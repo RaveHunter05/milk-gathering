@@ -41,6 +41,9 @@ class MilkPrice(Base):
     price = Column(Integer, index=True)
     date = Column(Date, index=True)
 
+    #Dependent Relationships
+    payment = relationship("Payment", back_populates="milk_price")
+
 
 class Deduction(Base):
     __tablename__ = "deduction"
@@ -115,6 +118,7 @@ class CollectedMilk(Base):
     producer_id = Column(ForeignKey("producer.id"), index=True)
 
     quantity = Column(Integer, ForeignKey("collected_milk.id"), index=True)
+    type = Column(String, index=True)
     date = Column(Date, index=True)
 
     # Foreign Key Relationships
@@ -132,13 +136,15 @@ class Payment(Base):
     id = Column(Integer, primary_key=True, index=True)
     # Foreign Keys
     collected_milk_id = Column(ForeignKey("collected_milk.id"), index=True)
-    deduction_id = Column(ForeignKey("deduction.id"), index=True)
-    transport_cost_id = Column(ForeignKey("transport_cost.id"), index=True)
+    deduction_id = Column(ForeignKey("deduction.id"), index=True, nullable=True)
+    transport_cost_id = Column(ForeignKey("transport_cost.id"), index=True, nullable=True)
+    milk_price_id = Column(ForeignKey("milk_price.id"), index=True, nullable=True)
 
     amount = Column(Integer, index=True)
     date = Column(Date, index=True)
 
     # Foreign Key Relationships
     collected_milk = relationship("CollectedMilk", back_populates="payment")
-    transport_cost = relationship("TransportCost", back_populates="payment")
     deduction = relationship("Deduction", back_populates="payment")
+    transport_cost = relationship("TransportCost", back_populates="payment")
+    milk_price = relationship("MilkPrice", back_populates="payment")

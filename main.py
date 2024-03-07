@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from src import models
 
-from src.routers import payment, milk_routes, drivers, transport_costs, producers, auth, deductions, milk_prices, reports
+from src.routers import payment, milk_routes, drivers, transport_costs, producers, auth, deductions, milk_prices, reports, collected_milks
 
 from src.database import engine
 
@@ -15,6 +15,7 @@ app = FastAPI()
 app.include_router(drivers.router)
 app.include_router(milk_routes.router)
 app.include_router(milk_prices.router)
+app.include_router(collected_milks.router)
 app.include_router(payment.router)
 app.include_router(producers.router)
 app.include_router(transport_costs.router)
