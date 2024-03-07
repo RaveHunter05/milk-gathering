@@ -137,6 +137,7 @@ def get_transport_costs(db: Session, skip: int = 0, limit: int = 100):
 
 def create_transport_cost(db: Session, transport_cost: schemas.TransportCostCreate):
     db_transport_cost = models.TransportCost(
+            name=transport_cost.name, description=transport_cost.description,
             cost=transport_cost.cost, date=transport_cost.date
             )
     db.add(db_transport_cost)
