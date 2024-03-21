@@ -1,4 +1,4 @@
-from dependencies import (
+from app.dependencies import (
     APIRouter,
     Depends,
     HTTPException,
@@ -10,11 +10,11 @@ from dependencies import (
     OAuth2PasswordRequestForm,
 )
 
-from src import schemas
+from app.src import schemas
 
 from datetime import timedelta
 
-from src.authentication import authenticate_user, create_access_token, create_user
+from app.src.authentication import authenticate_user, create_access_token, create_user
 
 router = APIRouter()
 

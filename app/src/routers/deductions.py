@@ -1,4 +1,4 @@
-from dependencies import (
+from app.dependencies import (
     APIRouter,
     Depends,
     HTTPException,
@@ -10,13 +10,13 @@ from dependencies import (
     oauth2_scheme,
 )
 
-from src import schemas, crud
+from app.src import schemas, crud
 
-router = APIRouter()
+router = APIRouter(prefix="/deduction")
 
 
 # Deductions
-@router.get("/deductions/", response_model=List[schemas.Deduction], tags=["deductions"])
+@router.get("", response_model=List[schemas.Deduction], tags=["deductions"])
 def read_deductions(
     token: Annotated[str, Depends(oauth2_scheme)],
     skip: int = 0,
@@ -28,7 +28,7 @@ def read_deductions(
 
 
 @router.get(
-    "/deduction/{deduction_id}", response_model=schemas.Deduction, tags=["deductions"]
+    "/{deduction_id}", response_model=schemas.Deduction, tags=["deductions"]
 )
 def read_deduction(
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -41,7 +41,7 @@ def read_deduction(
     return db_deduction
 
 
-@router.post("/deduction/", response_model=schemas.Deduction, tags=["deductions"])
+@router.post("", response_model=schemas.Deduction, tags=["deductions"])
 def create_deduction(
     token: Annotated[str, Depends(oauth2_scheme)],
     deduction: schemas.DeductionCreate,
@@ -51,7 +51,7 @@ def create_deduction(
 
 
 @router.put(
-    "/deduction/{deduction_id}", response_model=schemas.Deduction, tags=["deductions"]
+    "/{deduction_id}", response_model=schemas.Deduction, tags=["deductions"]
 )
 def update_deduction(
     token: Annotated[str, Depends(oauth2_scheme)],

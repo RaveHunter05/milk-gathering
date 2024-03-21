@@ -1,4 +1,4 @@
-from dependencies import (
+from app.dependencies import (
     Annotated,
     APIRouter,
     Depends,
@@ -10,13 +10,11 @@ from dependencies import (
     oauth2_scheme,
 )
 
-from src import schemas, crud
+from app.src import schemas, crud
 
-router = APIRouter()
-# Payment
+router = APIRouter(prefix="/payment")
 
-
-@router.get("/payments/", response_model=List[schemas.Payment], tags=["payments"])
+@router.get("", response_model=List[schemas.Payment], tags=["payments"])
 def read_payments(
     token: Annotated[str, Depends(oauth2_scheme)],
     skip: int = 0,
@@ -27,7 +25,7 @@ def read_payments(
     return payments
 
 
-@router.get("/payment/{payment_id}", response_model=schemas.Payment, tags=["payments"])
+@router.get("/{payment_id}", response_model=schemas.Payment, tags=["payments"])
 def read_payment(
     token: Annotated[str, Depends(oauth2_scheme)],
     payment_id: int,
@@ -39,7 +37,7 @@ def read_payment(
     return db_payment
 
 
-@router.post("/payment/", response_model=schemas.Payment, tags=["payments"])
+@router.post("", response_model=schemas.Payment, tags=["payments"])
 def create_payment(
     token: Annotated[str, Depends(oauth2_scheme)],
     payment: schemas.PaymentCreate,

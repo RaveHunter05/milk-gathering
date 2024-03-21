@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from typing import List
 
-from src.database import SessionLocal, engine
+from app.src.database import SessionLocal, engine
 from sqlalchemy.orm import Session
 
 from dotenv import load_dotenv

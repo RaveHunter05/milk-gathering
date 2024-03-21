@@ -1,4 +1,4 @@
-from dependencies import (
+from app.dependencies import (
     APIRouter,
     Depends,
     HTTPException,
@@ -10,14 +10,14 @@ from dependencies import (
     oauth2_scheme,
 )
 
-from src import schemas, crud
+from app.src import schemas, crud
 
-router = APIRouter()
+router = APIRouter(prefix="/milk_price")
 
 
 # Milk Price
 @router.get(
-    "/milk_prices/", response_model=List[schemas.MilkPrice], tags=["milk prices"]
+    "", response_model=List[schemas.MilkPrice], tags=["milk prices"]
 )
 def read_milk_prices(
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -30,7 +30,7 @@ def read_milk_prices(
 
 
 @router.get(
-    "/milk_price/{milk_price_id}",
+    "/{milk_price_id}",
     response_model=schemas.MilkPrice,
     tags=["milk prices"],
 )
@@ -45,7 +45,7 @@ def read_milk_price(
     return db_milk_price
 
 
-@router.post("/milk_price/", response_model=schemas.MilkPrice, tags=["milk prices"])
+@router.post("", response_model=schemas.MilkPrice, tags=["milk prices"])
 def create_milk_price(
     token: Annotated[str, Depends(oauth2_scheme)],
     milk_price: schemas.MilkPriceCreate,
@@ -55,7 +55,7 @@ def create_milk_price(
 
 
 @router.put(
-    "/milk_price/{milk_price_id}",
+    "/{milk_price_id}",
     response_model=schemas.MilkPrice,
     tags=["milk prices"],
 )

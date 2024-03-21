@@ -1,4 +1,4 @@
-from dependencies import (
+from app.dependencies import (
     APIRouter,
     Depends,
     HTTPException,
@@ -10,12 +10,12 @@ from dependencies import (
     oauth2_scheme,
 )
 
-from src import schemas, crud
+from app.src import schemas, crud
 
-router = APIRouter()
+router = APIRouter(prefix="/route")
 
 
-@router.post("/route/", response_model=schemas.MilkRoute, tags=["milk routes"])
+@router.post("", response_model=schemas.MilkRoute, tags=["milk routes"])
 def create_route(
     token: Annotated[str, Depends(oauth2_scheme)],
     route: schemas.MilkRouteCreate,
@@ -24,7 +24,7 @@ def create_route(
     return crud.create_route(db=db, route=route)
 
 
-@router.get("/route/{route_id}", response_model=schemas.MilkRoute, tags=["milk routes"])
+@router.get("/{route_id}", response_model=schemas.MilkRoute, tags=["milk routes"])
 def read_route(
     token: Annotated[str, Depends(oauth2_scheme)],
     route_id: int,
@@ -36,7 +36,7 @@ def read_route(
     return db_route
 
 
-@router.get("/routes/", response_model=List[schemas.MilkRoute], tags=["milk routes"])
+@router.get("", response_model=List[schemas.MilkRoute], tags=["milk routes"])
 def read_routes(
     token: Annotated[str, Depends(oauth2_scheme)],
     skip: int = 0,
@@ -47,7 +47,7 @@ def read_routes(
     return routes
 
 
-@router.put("/route/{route_id}", response_model=schemas.MilkRoute, tags=["milk routes"])
+@router.put("/{route_id}", response_model=schemas.MilkRoute, tags=["milk routes"])
 def update_route(
     token: Annotated[str, Depends(oauth2_scheme)],
     route_id: int,
@@ -59,7 +59,7 @@ def update_route(
 
 
 @router.delete(
-    "/route/{route_id}", response_model=schemas.MilkRoute, tags=["milk routes"]
+    "/{route_id}", response_model=schemas.MilkRoute, tags=["milk routes"]
 )
 def delete_route(
     token: Annotated[str, Depends(oauth2_scheme)],

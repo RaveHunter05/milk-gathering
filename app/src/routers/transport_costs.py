@@ -1,4 +1,4 @@
-from dependencies import (
+from app.dependencies import (
     APIRouter,
     Depends,
     HTTPException,
@@ -10,13 +10,13 @@ from dependencies import (
     oauth2_scheme,
 )
 
-from src import schemas, crud
+from app.src import schemas, crud
 
-router = APIRouter()
+router = APIRouter(prefix="/transport_cost")
 
 
 @router.post(
-    "/transport_cost/", response_model=schemas.TransportCost, tags=["transport costs"]
+    "", response_model=schemas.TransportCost, tags=["transport costs"]
 )
 def create_transport_cost(
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -27,7 +27,7 @@ def create_transport_cost(
 
 
 @router.get(
-    "/transport_cost/{transport_cost_id}",
+    "/{transport_cost_id}",
     response_model=schemas.TransportCost,
     tags=["transport costs"],
 )
@@ -43,7 +43,7 @@ def read_transport_cost(
 
 
 @router.get(
-    "/transport_costs/",
+    "",
     response_model=List[schemas.TransportCost],
     tags=["transport costs"],
 )

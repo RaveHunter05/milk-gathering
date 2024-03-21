@@ -251,18 +251,50 @@ def get_payments_report_by_date(
         db: Session, start_date: str, end_date: str
         ):
     return (
-            db.query(models.Payment)
+            db.query(models.Payment,models.CollectedMilk.producer_id, models.Producer.name.label("producer_name"), func.sum(models.CollectedMilk.quantity).label("total_collected"), func.sum(models.Payment.amount).label("total_payment"), models.Payment.date, )
             .join(models.CollectedMilk, models.Payment.collected_milk_id == models.CollectedMilk.id)
+            .join(models.Producer, models.CollectedMilk.producer_id == models.Producer.id)
             .filter(models.Payment.date >= start_date)
             .filter(models.Payment.date <= end_date)
+            .group_by(models.Payment.collected_milk_id, models.Producer.name, models.Payment.id, models.Payment.date, models.CollectedMilk.producer_id)
             .all()
             )
+
 
 def get_collected_report_by_producer_and_date(
         db: Session, start_date: str, end_date: str
         ):
-    result = db.query(models.CollectedMilk.producer_id, func.max(models.CollectedMilk.quantity).label("max_quantity"),
-                      func.sum(models.CollectedMilk.quantity).label("total_quantity")) .group_by(models.CollectedMilk.producer_id) .all()
+    return (db.query(models.CollectedMilk.producer_id, models.Producer.name.label("producer_name"), func.sum(models.CollectedMilk.quantity).label("total_collected")) 
+            .join(models.CollectedMilk.producer)
+            .filter(models.CollectedMilk.date >= start_date)
+            .filter(models.CollectedMilk.date <= end_date)
+            .group_by(models.CollectedMilk.producer_id, models.Producer.name)
+            .all()
+            )
+
+
+def get_collected_milk_by_route_driver_and_date(
+        db: Session, start_date: str, end_date: str
+        ):
     return (
-            result
+            db.query(models.CollectedMilk.route_id, models.MilkRoute.name.label("route_name"), func.sum(models.CollectedMilk.quantity).label("milk_quantity"), models.Driver.name.label("driver_name"))
+            .join(models.CollectedMilk.route)
+            .join(models.CollectedMilk.driver)
+            .filter(models.CollectedMilk.date >= start_date)
+            .filter(models.CollectedMilk.date <= end_date)
+            .group_by(models.CollectedMilk.route_id, models.MilkRoute.name, models.Driver.name)
+            .all()
+            )
+
+
+def get_collected_milk_by_route_and_date(
+        db: Session, start_date: str, end_date: str
+        ):
+    return (
+            db.query(models.CollectedMilk.route_id, models.MilkRoute.name.label("route_name"), func.sum(models.CollectedMilk.quantity).label("milk_quantity"))
+            .join(models.CollectedMilk.route)
+            .filter(models.CollectedMilk.date >= start_date)
+            .filter(models.CollectedMilk.date <= end_date)
+            .group_by(models.CollectedMilk.route_id, models.MilkRoute.name)
+            .all()
             )

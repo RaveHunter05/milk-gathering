@@ -1,4 +1,4 @@
-from dependencies import (
+from app.dependencies import (
     APIRouter,
     Depends,
     HTTPException,
@@ -11,12 +11,12 @@ from dependencies import (
     oauth2_scheme,
 )
 
-from src import schemas, crud
+from app.src import schemas, crud
 
-router = APIRouter()
+router = APIRouter(prefix="/producer")
 
 
-@router.get("/producers/", response_model=List[schemas.Producer], tags=["producers"])
+@router.get("", response_model=List[schemas.Producer], tags=["producers"])
 def read_producers(
     token: Annotated[str, Depends(oauth2_scheme)],
     skip: int = 0,
@@ -28,7 +28,7 @@ def read_producers(
 
 
 @router.get(
-    "/producer/{producer_id}", response_model=schemas.Producer, tags=["producers"]
+    "/{producer_id}", response_model=schemas.Producer, tags=["producers"]
 )
 def read_producer(
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -41,7 +41,7 @@ def read_producer(
     return db_producer
 
 
-@router.post("/producer/", response_model=schemas.Producer, tags=["producers"])
+@router.post("", response_model=schemas.Producer, tags=["producers"])
 def create_producer(
     token: Annotated[str, Depends(oauth2_scheme)],
     producer: schemas.ProducerCreate,
@@ -51,7 +51,7 @@ def create_producer(
 
 
 @router.put(
-    "/producer/{producer_id}", response_model=schemas.Producer, tags=["producers"]
+    "/{producer_id}", response_model=schemas.Producer, tags=["producers"]
 )
 def update_producer(
     token: Annotated[str, Depends(oauth2_scheme)],

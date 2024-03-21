@@ -1,4 +1,4 @@
-from dependencies import (
+from app.dependencies import (
     APIRouter,
     Depends,
     HTTPException,
@@ -10,14 +10,14 @@ from dependencies import (
     oauth2_scheme,
 )
 
-from src import schemas, crud
+from app.src import schemas, crud
 
-router = APIRouter()
+router = APIRouter(prefix="/collected_milk")
 
 
 # Collected Milk
 @router.get(
-    "/collected_milk/",
+    "",
     response_model=List[schemas.CollectedMilk],
     tags=["collected milk"],
 )
@@ -32,7 +32,7 @@ def read_collected_milks(
 
 
 @router.get(
-    "/collected_milk/{collected_milk_id}",
+    "/{collected_milk_id}",
     response_model=schemas.CollectedMilk,
     tags=["collected milk"],
 )
@@ -48,7 +48,7 @@ def read_collected_milk(
 
 
 @router.post(
-    "/collected_milk/", response_model=schemas.CollectedMilk, tags=["collected milk"]
+    "", response_model=schemas.CollectedMilk, tags=["collected milk"]
 )
 def create_collected_milk(
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -59,7 +59,7 @@ def create_collected_milk(
 
 
 @router.put(
-    "/collected_milk/{collected_milk_id}",
+    "/{collected_milk_id}",
     response_model=schemas.CollectedMilk,
     tags=["collected milk"],
 )

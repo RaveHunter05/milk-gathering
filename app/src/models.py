@@ -117,7 +117,7 @@ class CollectedMilk(Base):
     route_id = Column(ForeignKey("milk_route.id"), index=True)
     producer_id = Column(ForeignKey("producer.id"), index=True)
 
-    quantity = Column(Integer, ForeignKey("collected_milk.id"), index=True)
+    quantity = Column(Integer, index=True)
     type = Column(String, index=True)
     date = Column(Date, index=True)
 
@@ -130,7 +130,7 @@ class CollectedMilk(Base):
     payment = relationship("Payment", back_populates="collected_milk")
 
 
-class Payment(Base):
+class Payment(Base): 
     __tablename__ = "payment"
 
     id = Column(Integer, primary_key=True, index=True)

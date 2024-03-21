@@ -1,4 +1,4 @@
-from dependencies import (
+from app.dependencies import (
     APIRouter,
     Depends,
     HTTPException,
@@ -10,12 +10,12 @@ from dependencies import (
     Annotated,
 )
 
-from src import schemas, crud
+from app.src import schemas, crud
 
-router = APIRouter()
+router = APIRouter(prefix="/driver")
 
 
-@router.post("/driver/", response_model=schemas.Driver, tags=["drivers"])
+@router.post("", response_model=schemas.Driver, tags=["drivers"])
 def create_driver(
     token: Annotated[str, Depends(oauth2_scheme)],
     driver: schemas.DriverCreate,
@@ -24,7 +24,7 @@ def create_driver(
     return crud.create_driver(db=db, driver=driver)
 
 
-@router.get("/driver/{driver_id}", response_model=schemas.Driver, tags=["drivers"])
+@router.get("/{driver_id}", response_model=schemas.Driver, tags=["drivers"])
 def read_driver(
     token: Annotated[str, Depends(oauth2_scheme)],
     driver_id: int,
@@ -36,7 +36,7 @@ def read_driver(
     return db_driver
 
 
-@router.get("/drivers/", response_model=List[schemas.Driver], tags=["drivers"])
+@router.get("", response_model=List[schemas.Driver], tags=["drivers"])
 def read_drivers(
     token: Annotated[str, Depends(oauth2_scheme)],
     skip: int = 0,
@@ -47,7 +47,7 @@ def read_drivers(
     return drivers
 
 
-@router.put("/driver/{driver_id}", response_model=schemas.Driver, tags=["drivers"])
+@router.put("/{driver_id}", response_model=schemas.Driver, tags=["drivers"])
 def update_driver(
     token: Annotated[str, Depends(oauth2_scheme)],
     driver_id: int,

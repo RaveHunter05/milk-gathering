@@ -4,7 +4,7 @@ from typing import Optional
 
 
 class Token(BaseModel):
-    access_token: str
+    access_token: str 
     token_type: str
 
 
@@ -32,7 +32,7 @@ class MilkPrice(BaseModel):
     date: date
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class MilkPriceCreate(BaseModel):
@@ -55,7 +55,7 @@ class Deduction(BaseModel):
     date: date
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class DeductionCreate(BaseModel):
@@ -90,6 +90,7 @@ class MilkRouteUpdate(BaseModel):
     description: str
     date: date
 
+
 class Driver(BaseModel):
     id: int
     name: str
@@ -97,7 +98,7 @@ class Driver(BaseModel):
     date: date
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class DriverCreate(BaseModel):
@@ -120,7 +121,7 @@ class TransportCost(BaseModel):
     date: date
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class TransportCostCreate(BaseModel):
@@ -144,7 +145,7 @@ class Producer(BaseModel):
     date: date
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ProducerCreate(BaseModel):
@@ -169,7 +170,7 @@ class CollectedMilk(BaseModel):
     producer_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class CollectedMilkCreate(BaseModel):
@@ -200,7 +201,7 @@ class Payment(BaseModel):
     milk_price_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class PaymentCreate(BaseModel):
@@ -219,14 +220,27 @@ class PaymentUpdate(BaseModel):
     transport_cost_id: Optional[int]
     collected_milk_id: int
 
+class PaymentsByProducer(BaseModel):
+    producer_id: int
+    producer_name: str
+    total_collected: int
+    total_payment: int
+    date: date
+
 class CollectedMilkReport(BaseModel):
     producer_id: int
-    total_quantity: float
-    max_quantity: float
+    producer_name: str
+    total_collected: float
 
 
 class CollectedMilkReportByRoute(BaseModel):
     route_id: int
     route_name: str
-    total_quantity: float
-    max_quantity: float
+    milk_quantity: float
+
+
+class CollectedMilkReportByRouteAndDriver(BaseModel):
+    route_id: int
+    route_name: str
+    driver_name: str
+    milk_quantity: float
