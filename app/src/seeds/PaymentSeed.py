@@ -17,8 +17,7 @@ class PaymentSeed:
             "collected_milk_id": fake.random_int(min=11, max=20),
             "deduction_id": fake.random_int(min=1, max=10),
             "transport_cost_id": fake.random_int(min=1, max=10),
-            "milk_price_id": fake.random_int(min=1, max=10),
-            "amount": fake.random_int(),
+            "total_amount": fake.random_int(),
             "date": fake.date()
         }
 
@@ -27,8 +26,7 @@ class PaymentSeed:
             "collected_milk_id": fake.random_int(min=11, max=20),
             "deduction_id": fake.random_int(min=1, max=10),
             "transport_cost_id": fake.random_int(min=1, max=10),
-            "milk_price_id": fake.random_int(min=1, max=10),
-            "amount": fake.random_int(),
+            "total_amount": fake.random_int(),
             "date": fake.date()
         }
 

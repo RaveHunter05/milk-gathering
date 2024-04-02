@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean
+from sqlalchemy import Column, Integer, Numeric, String, ForeignKey, Date, Boolean
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -33,25 +33,13 @@ class TokenData(Base):
     username = Column(String, index=True)
 
 
-class MilkPrice(Base):
-    __tablename__ = "milk_price"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    price = Column(Integer, index=True)
-    date = Column(Date, index=True)
-
-    #Dependent Relationships
-    payment = relationship("Payment", back_populates="milk_price")
-
-
 class Deduction(Base):
     __tablename__ = "deduction"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     description = Column(String, index=True)
-    price = Column(Integer, index=True)
+    price = Column(Numeric, index=True)
     date = Column(Date, index=True)
 
     # Dependent Relationships
@@ -88,7 +76,7 @@ class TransportCost(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     description = Column(String, index=True)
-    cost = Column(Integer, index=True)
+    cost = Column(Numeric, index=True)
     date = Column(Date, index=True)
 
     # Dependent Relationships
@@ -117,7 +105,8 @@ class CollectedMilk(Base):
     route_id = Column(ForeignKey("milk_route.id"), index=True)
     producer_id = Column(ForeignKey("producer.id"), index=True)
 
-    quantity = Column(Integer, index=True)
+    quantity = Column(Numeric, index=True)
+    price = Column(Numeric, index=True)
     type = Column(String, index=True)
     date = Column(Date, index=True)
 
@@ -130,6 +119,34 @@ class CollectedMilk(Base):
     payment = relationship("Payment", back_populates="collected_milk")
 
 
+class CheeseMaker(Base):
+    __tablename__ = "cheese_maker"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    description = Column(String, index=True)
+    phone = Column(String, index=True)
+    date = Column(Date, index=True)
+
+    #Dependent Relationships
+    milk_selled = relationship("MilkSelled", back_populates="cheese_make")
+
+
+class MilkSelled(Base):
+    __tablename__ = "milk_selled"
+
+    id = Column(Integer, primary_key=True, index=True)
+    # Foreign Keys
+    cheese_maker_id = Column(ForeignKey("cheese_maker.id"), index=True)
+
+    quantity = Column(Numeric, index=True)
+    price = Column(Numeric, index=True)
+    date = Column(Date, index=True)
+
+    # Foreign Key Relationships
+    cheese_make = relationship("CheeseMaker", back_populates="milk_selled")
+
+
 class Payment(Base): 
     __tablename__ = "payment"
 
@@ -138,13 +155,11 @@ class Payment(Base):
     collected_milk_id = Column(ForeignKey("collected_milk.id"), index=True)
     deduction_id = Column(ForeignKey("deduction.id"), index=True, nullable=True)
     transport_cost_id = Column(ForeignKey("transport_cost.id"), index=True, nullable=True)
-    milk_price_id = Column(ForeignKey("milk_price.id"), index=True, nullable=True)
 
-    amount = Column(Integer, index=True)
+    total_amount = Column(Numeric, index=True)
     date = Column(Date, index=True)
 
     # Foreign Key Relationships
     collected_milk = relationship("CollectedMilk", back_populates="payment")
     deduction = relationship("Deduction", back_populates="payment")
     transport_cost = relationship("TransportCost", back_populates="payment")
-    milk_price = relationship("MilkPrice", back_populates="payment")

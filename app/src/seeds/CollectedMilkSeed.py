@@ -18,6 +18,7 @@ class CollectedMilkSeed:
             "route_id": fake.random_int(min=1, max=10),
             "producer_id": fake.random_int(min=1, max=10),
             "quantity": fake.random_int(),
+            "price": fake.random_int(min=10, max=100),
             "type": "Galon",
             "date": fake.date()
         }
@@ -27,6 +28,7 @@ class CollectedMilkSeed:
             "driver_id": fake.random_int(min=1, max=10),
             "route_id": fake.random_int(min=1, max=10),
             "producer_id": fake.random_int(min=1, max=10),
+            "price": fake.random_int(min=10, max=100),
             "quantity": fake.random_int(),
             "type": "Galon",
             "date": fake.date()

@@ -2,9 +2,11 @@ from datetime import date
 from pydantic import BaseModel
 from typing import Optional
 
+from decimal import Decimal
+
 
 class Token(BaseModel):
-    access_token: str 
+    access_token: str
     token_type: str
 
 
@@ -25,33 +27,11 @@ class UserCreate(BaseModel):
     password: str
 
 
-class MilkPrice(BaseModel):
-    id: int
-    name: str
-    price: int
-    date: date
-
-    class Config:
-        from_attributes = True
-
-
-class MilkPriceCreate(BaseModel):
-    name: str
-    price: int
-    date: date
-
-
-class MilkPriceUpdate(BaseModel):
-    name: str
-    price: int
-    date: date
-
-
 class Deduction(BaseModel):
     id: int
     name: str
     description: str
-    price: int
+    price: Decimal
     date: date
 
     class Config:
@@ -61,14 +41,14 @@ class Deduction(BaseModel):
 class DeductionCreate(BaseModel):
     name: str
     description: str
-    price: int
+    price: Decimal
     date: date
 
 
 class DeductionUpdate(BaseModel):
     name: str
     description: str
-    price: int
+    price: Decimal
     date: date
 
 
@@ -115,7 +95,7 @@ class DriverUpdate(BaseModel):
 
 class TransportCost(BaseModel):
     id: int
-    cost: int
+    cost: Decimal
     name: str
     description: str
     date: date
@@ -159,12 +139,62 @@ class ProducerUpdate(BaseModel):
     name: str
     description: str
 
+#Cheese Maker
+
+class CheeseMaker(BaseModel):
+    id: int
+    name: str
+    description: str
+    phone: str
+    date: date
+
+    class Config:
+        from_attributes = True
+
+
+class CheeseMakerUpdate(BaseModel):
+    name: str
+    description: str
+    phone: str
+    date: date
+
+
+class CheeseMakerCreate(BaseModel):
+    name: str
+    description: str
+    phone: str
+    date: date
+
+
+class MilkSelled(BaseModel):
+    id: int
+    date: date
+    quantity: Decimal
+    price: Decimal
+    cheese_maker_id: int
+
+
+class MilkSelledCreate(BaseModel):
+    date: date
+    quantity: Decimal
+    price: Decimal
+    cheese_maker_id: int
+
+
+class MilkSelledUpdate(BaseModel):
+    id: int
+    date: date
+    quantity: Decimal
+    price: Decimal
+    cheese_maker_id: int
+
 
 class CollectedMilk(BaseModel):
     id: int
     date: date
     type: str
-    quantity: int
+    quantity: Decimal
+    price: Decimal
     route_id: int
     driver_id: int
     producer_id: int
@@ -176,7 +206,8 @@ class CollectedMilk(BaseModel):
 class CollectedMilkCreate(BaseModel):
     date: date
     type: str
-    quantity: int
+    quantity: Decimal
+    price: Decimal
     route_id: int
     driver_id: int
     producer_id: int
@@ -185,7 +216,8 @@ class CollectedMilkCreate(BaseModel):
 class CollectedMilkUpdate(BaseModel):
     date: date
     type: str
-    quantity: int
+    quantity: Decimal
+    price: Decimal
     route_id: int
     driver_id: int
     producer_id: int
@@ -194,11 +226,10 @@ class CollectedMilkUpdate(BaseModel):
 class Payment(BaseModel):
     id: int
     date: date
-    amount: int
+    total_amount: Decimal
     deduction_id: int
     transport_cost_id: int
     collected_milk_id: int
-    milk_price_id: int
 
     class Config:
         from_attributes = True
@@ -206,16 +237,15 @@ class Payment(BaseModel):
 
 class PaymentCreate(BaseModel):
     date: date
-    amount: int
+    total_amount: Decimal
     deduction_id: Optional[int]
     transport_cost_id: Optional[int]
     collected_milk_id: int
-    milk_price_id: int
 
 
 class PaymentUpdate(BaseModel):
     date: date
-    amount: int
+    total_amount: Decimal
     deduction_id: Optional[int]
     transport_cost_id: Optional[int]
     collected_milk_id: int
@@ -230,17 +260,44 @@ class PaymentsByProducer(BaseModel):
 class CollectedMilkReport(BaseModel):
     producer_id: int
     producer_name: str
-    total_collected: float
+    total_collected: Decimal
 
 
 class CollectedMilkReportByRoute(BaseModel):
     route_id: int
     route_name: str
-    milk_quantity: float
+    milk_quantity: Decimal
 
 
 class CollectedMilkReportByRouteAndDriver(BaseModel):
     route_id: int
     route_name: str
     driver_name: str
-    milk_quantity: float
+    milk_quantity: Decimal
+
+
+class SelledVsCollectedMilk(BaseModel):
+    date: date
+    day_of_week: str
+    milk_collected: Decimal
+    total_price_collected: Decimal
+    avg_milk_collected_price: Decimal
+    milk_selled: Decimal
+    total_price_selled: Decimal
+    avg_milk_selled_price: Decimal
+
+
+class SelledMilkByDate(BaseModel):
+    date: date
+    day_of_week: str
+    milk_price: Decimal
+    milk_selled: Decimal
+    total_price: Decimal
+
+
+class CollectedMilkByDate(BaseModel):
+    date: date
+    day_of_week: str
+    milk_price: Decimal
+    milk_collected: Decimal
+    total_price: Decimal

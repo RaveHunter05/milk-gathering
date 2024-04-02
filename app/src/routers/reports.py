@@ -17,7 +17,7 @@ router = APIRouter(prefix="/reports")
 # Path: /route-report-by-date/
 
 # Collected milk report by starting and end date
-@router.get("/collected-milk-report-by-date", response_model=List[schemas.CollectedMilk], tags=["reports"])
+@router.get("/collected-milk-report-by-date", response_model=List[schemas.CollectedMilkByDate], tags=["reports"])
 def collected_milk_report_by_date(
     token: Annotated[str, Depends(oauth2_scheme)],
     start_date: Annotated[str, "Start date"],
@@ -67,3 +67,24 @@ def collected_report_by_producer_and_date(
     db: Session = Depends(get_db),
 ):
     return crud.get_collected_report_by_producer_and_date(db, start_date, end_date)
+
+
+# Selled milk report by starting and end date
+@router.get("/selled-milk-report-by-date", response_model=List[schemas.SelledMilkByDate], tags=["reports"])
+def selled_milk_report_by_date(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    start_date: Annotated[str, "Start date"],
+    end_date: Annotated[str, "End date"],
+    db: Session = Depends(get_db),
+):
+    return crud.get_selled_milk_report_by_date(db, start_date, end_date)
+
+# Selled vs collected milk report by starting and end date
+@router.get("/selled-vs-collected-milk-report-by-date", response_model=List[schemas.SelledVsCollectedMilk], tags=["reports"])
+def selled_vs_collected_milk_report_by_date(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    start_date: Annotated[str, "Start date"],
+    end_date: Annotated[str, "End date"],
+    db: Session = Depends(get_db),
+):
+    return crud.compare_milk_selled_and_collected_milk_by_date(db, start_date, end_date)

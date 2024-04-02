@@ -1,54 +1,38 @@
 from sqlalchemy.orm import Session
 
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, extract
+
+from sqlalchemy import desc
+
+from datetime import datetime, timedelta
 
 from . import models, schemas
-
-
-# Milk Price
-def get_milk_price(db: Session, milk_price_id: int):
-    return (
-            db.query(models.MilkPrice).filter(models.MilkPrice.id == milk_price_id).first()
-            )
-
-
-def get_milk_prices(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.MilkPrice).offset(skip).limit(limit).all()
-
-
-def create_milk_price(db: Session, milk_price: schemas.MilkPriceCreate):
-    db_milk_price = models.MilkPrice(price=milk_price.price, name=milk_price.name, date=milk_price.date)
-    db.add(db_milk_price)
-    db.commit()
-    db.refresh(db_milk_price)
-    return db_milk_price
-
-
-def update_milk_price(db: Session, milk_price: schemas.MilkPriceUpdate):
-    milk_price = db.query(models.MilkPrice).filter_by(id=milk_price.id).first()
-    milk_price.price = milk_price.price
-    db.commit()
-    return milk_price
 
 
 # Deduction
 def get_deduction(db: Session, deduction_id: int):
     return (
-            db.query(models.Deduction).filter(models.Deduction.id == deduction_id).first()
-            )
+        db.query(models.Deduction).filter(models.Deduction.id == deduction_id).first()
+    )
 
 
 def get_deductions(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Deduction).offset(skip).limit(limit).all()
+    return (
+        db.query(models.Deduction)
+        .order_by(desc(models.Deduction.date))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def create_deduction(db: Session, deduction: schemas.DeductionCreate):
     db_deduction = models.Deduction(
-            name=deduction.name,
-            description=deduction.description,
-            price=deduction.price,
-            date=deduction.date,
-            )
+        name=deduction.name,
+        description=deduction.description,
+        price=deduction.price,
+        date=deduction.date,
+    )
     db.add(db_deduction)
     db.commit()
     db.refresh(db_deduction)
@@ -70,13 +54,19 @@ def get_route(db: Session, route_id: int):
 
 
 def get_routes(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.MilkRoute).offset(skip).limit(limit).all()
+    return (
+        db.query(models.MilkRoute)
+        .order_by(desc(models.MilkRoute.date))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def create_route(db: Session, route: schemas.MilkRouteCreate):
     route = models.MilkRoute(
-            name=route.name, description=route.description, date=route.date
-            )
+        name=route.name, description=route.description, date=route.date
+    )
     db.add(route)
     db.commit()
     db.refresh(route)
@@ -93,11 +83,12 @@ def update_route(db: Session, item_id: str, route: schemas.MilkRouteUpdate):
 
 def delete_route(db: Session, route_id: int):
     db_route = (
-            db.query(models.MilkRoute).filter(models.MilkRoute.id == route_id).first()
-            )
+        db.query(models.MilkRoute).filter(models.MilkRoute.id == route_id).first()
+    )
     db.delete(db_route)
     db.commit()
     return db_route
+
 
 # Driver
 def get_driver(db: Session, driver_id: int):
@@ -105,7 +96,13 @@ def get_driver(db: Session, driver_id: int):
 
 
 def get_drivers(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Driver).offset(skip).limit(limit).all()
+    return (
+        db.query(models.Driver)
+        .order_by(desc(models.Driver.date))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def create_driver(db: Session, driver: schemas.DriverCreate):
@@ -127,21 +124,29 @@ def update_driver(db: Session, driver: schemas.DriverUpdate):
 # Transport Cost
 def get_transport_cost(db: Session, transport_cost_id: int):
     return (
-            db.query(models.TransportCost)
-            .filter(models.TransportCost.id == transport_cost_id)
-            .first()
-            )
+        db.query(models.TransportCost)
+        .filter(models.TransportCost.id == transport_cost_id)
+        .first()
+    )
 
 
 def get_transport_costs(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.TransportCost).offset(skip).limit(limit).all()
+    return (
+        db.query(models.TransportCost)
+        .order_by(desc(models.TransportCost.date))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def create_transport_cost(db: Session, transport_cost: schemas.TransportCostCreate):
     db_transport_cost = models.TransportCost(
-            name=transport_cost.name, description=transport_cost.description,
-            cost=transport_cost.cost, date=transport_cost.date
-            )
+        name=transport_cost.name,
+        description=transport_cost.description,
+        cost=transport_cost.cost,
+        date=transport_cost.date,
+    )
     db.add(db_transport_cost)
     db.commit()
     db.refresh(db_transport_cost)
@@ -150,8 +155,8 @@ def create_transport_cost(db: Session, transport_cost: schemas.TransportCostCrea
 
 def update_transport_cost(db: Session, transport_cost: schemas.TransportCostUpdate):
     transport_cost = (
-            db.query(models.TransportCost).filter_by(id=transport_cost.id).first()
-            )
+        db.query(models.TransportCost).filter_by(id=transport_cost.id).first()
+    )
     transport_cost.cost = transport_cost.Cost
     transport_cost.name = transport_cost.name
     transport_cost.description = transport_cost.description
@@ -166,11 +171,22 @@ def get_producer(db: Session, producer_id: int):
 
 
 def get_producers(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Producer).offset(skip).limit(limit).all()
+    return (
+        db.query(models.Producer)
+        .order_by(desc(models.Producer.date))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def create_producer(db: Session, producer: schemas.ProducerCreate):
-    db_producer = models.Producer(name=producer.name, description=producer.description, phone=producer.phone, date=producer.date)
+    db_producer = models.Producer(
+        name=producer.name,
+        description=producer.description,
+        phone=producer.phone,
+        date=producer.date,
+    )
     db.add(db_producer)
     db.commit()
     db.refresh(db_producer)
@@ -185,40 +201,154 @@ def update_producer(db: Session, producer: schemas.ProducerUpdate):
     return producer
 
 
+# CheeeseMaker
+
+
+def get_cheese_maker(db: Session, cheese_maker_id: int):
+    return (
+        db.query(models.CheeseMaker)
+        .filter(models.CheeseMaker.id == cheese_maker_id)
+        .first()
+    )
+
+
+def get_cheese_makers(db: Session, skip: int = 0, limit: int = 100):
+    return (
+        db.query(models.CheeseMaker)
+        .order_by(desc(models.CheeseMaker.date))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+def create_cheese_maker(db: Session, cheese_maker: schemas.CheeseMakerCreate):
+    db_cheese_maker = models.CheeseMaker(
+        name=cheese_maker.name,
+        description=cheese_maker.description,
+        phone=cheese_maker.phone,
+        date=cheese_maker.date,
+    )
+    db.add(db_cheese_maker)
+    db.commit()
+    db.refresh(db_cheese_maker)
+    return db_cheese_maker
+
+
+def update_cheese_maker(db: Session, updated_cheese_maker: schemas.CheeseMakerUpdate):
+    updated_cheese_maker = (
+        db.query(models.CheeseMaker).filter_by(id=updated_cheese_maker.id).first()
+    )
+    updated_cheese_maker.name = updated_cheese_maker.name
+    updated_cheese_maker.description = updated_cheese_maker.description
+    updated_cheese_maker.phone = updated_cheese_maker.phone
+    db.commit()
+    return updated_cheese_maker
+
+
+# Milk Selled
+
+
+def get_milk_selled(db: Session, milk_selled_id: int):
+    return (
+        db.query(models.MilkSelled)
+        .filter(models.MilkSelled.id == milk_selled_id)
+        .first()
+    )
+
+
+def get_milk_selleds(db: Session, skip: int = 0, limit: int = 100):
+    return (
+        db.query(models.MilkSelled)
+        .order_by(desc(models.MilkSelled.date))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+def create_milk_selled(db: Session, milk_selled: schemas.MilkSelledCreate):
+    db_milk_selled = models.MilkSelled(
+        quantity=milk_selled.quantity,
+        date=milk_selled.date,
+        price=milk_selled.price,
+        cheese_maker_id=milk_selled.cheese_maker_id,
+    )
+    db.add(db_milk_selled)
+    db.commit()
+    db.refresh(db_milk_selled)
+    return db_milk_selled
+
+
+def update_milk_selled(db: Session, milk_selled: schemas.MilkSelledUpdate):
+    db_milk_selled = db.query(models.MilkSelled).filter_by(id=milk_selled.id).first()
+    db_milk_selled.date = milk_selled.date
+    db_milk_selled.quantity = milk_selled.quantity
+    db_milk_selled.price = milk_selled.price
+    db_milk_selled.cheese_maker_id = milk_selled.cheese_maker_id
+
+    db.commit()
+    return db_milk_selled
+
+
 # Payment
 def get_payment(db: Session, payment_id: int):
     return db.query(models.Payment).filter(models.Payment.id == payment_id).first()
 
 
 def get_payments(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Payment).offset(skip).limit(limit).all()
+    return (
+        db.query(models.Payment)
+        .order_by(desc(models.Payment.date))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def create_payment(db: Session, payment: schemas.PaymentCreate):
-    db_payment = models.Payment(amount=payment.amount, date=payment.date, deduction_id=payment.deduction_id, transport_cost_id=payment.transport_cost_id, collected_milk_id=payment.collected_milk_id, milk_price_id=payment.milk_price_id)
+    db_payment = models.Payment(
+        total_amount=payment.total_amount,
+        date=payment.date,
+        deduction_id=payment.deduction_id,
+        transport_cost_id=payment.transport_cost_id,
+        collected_milk_id=payment.collected_milk_id,
+    )
     db.add(db_payment)
     db.commit()
     db.refresh(db_payment)
     return db_payment
 
+
 # Collected Milk
 def get_collected_milk(db: Session, collected_milk_id: int):
     return (
-            db.query(models.CollectedMilk)
-            .filter(models.CollectedMilk.id == collected_milk_id)
-            .first()
-            )
+        db.query(models.CollectedMilk)
+        .filter(models.CollectedMilk.id == collected_milk_id)
+        .first()
+    )
 
 
 def get_collected_milks(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.CollectedMilk).offset(skip).limit(limit).all()
+    return (
+        db.query(models.CollectedMilk)
+        .order_by(desc(models.CollectedMilk.date))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def create_collected_milk(db: Session, collected_milk: schemas.CollectedMilkCreate):
     db_collected_milk = models.CollectedMilk(
-            quantity=collected_milk.quantity, date=collected_milk.date, type=collected_milk.type,
-            route_id=collected_milk.route_id, driver_id=collected_milk.driver_id, producer_id=collected_milk.producer_id
-            )
+        quantity=collected_milk.quantity,
+        price=collected_milk.price,
+        date=collected_milk.date,
+        type=collected_milk.type,
+        route_id=collected_milk.route_id,
+        driver_id=collected_milk.driver_id,
+        producer_id=collected_milk.producer_id,
+    )
     db.add(db_collected_milk)
     db.commit()
     db.refresh(db_collected_milk)
@@ -227,74 +357,274 @@ def create_collected_milk(db: Session, collected_milk: schemas.CollectedMilkCrea
 
 def update_collected_milk(db: Session, collected_milk: schemas.CollectedMilkUpdate):
     db_collected_milk = models.CollectedMilk(
-            quantity=collected_milk.quantity, date=collected_milk.date
-            )
+        quantity=collected_milk.quantity, date=collected_milk.date
+    )
     db.add(db_collected_milk)
     db.commit()
     db.refresh(db_collected_milk)
     return db_collected_milk
 
-# Reports
 
-def get_collected_milk_report_by_date(
-        db: Session, start_date: str, end_date: str
-        ):
+def get_payments_report_by_date(db: Session, start_date: str, end_date: str):
     return (
-            db.query(models.CollectedMilk)
-            .filter(models.CollectedMilk.date >= start_date)
-            .filter(models.CollectedMilk.date <= end_date)
-            .group_by(models.CollectedMilk.route_id)
-            .all()
-            )
-
-def get_payments_report_by_date(
-        db: Session, start_date: str, end_date: str
-        ):
-    return (
-            db.query(models.Payment,models.CollectedMilk.producer_id, models.Producer.name.label("producer_name"), func.sum(models.CollectedMilk.quantity).label("total_collected"), func.sum(models.Payment.amount).label("total_payment"), models.Payment.date, )
-            .join(models.CollectedMilk, models.Payment.collected_milk_id == models.CollectedMilk.id)
-            .join(models.Producer, models.CollectedMilk.producer_id == models.Producer.id)
-            .filter(models.Payment.date >= start_date)
-            .filter(models.Payment.date <= end_date)
-            .group_by(models.Payment.collected_milk_id, models.Producer.name, models.Payment.id, models.Payment.date, models.CollectedMilk.producer_id)
-            .all()
-            )
+        db.query(
+            models.Payment,
+            models.CollectedMilk.producer_id,
+            models.Producer.name.label("producer_name"),
+            func.sum(models.CollectedMilk.quantity).label("total_collected"),
+            func.sum(models.Payment.amount).label("total_payment"),
+            models.Payment.date,
+        )
+        .join(
+            models.CollectedMilk,
+            models.Payment.collected_milk_id == models.CollectedMilk.id,
+        )
+        .join(models.Producer, models.CollectedMilk.producer_id == models.Producer.id)
+        .filter(models.Payment.date >= start_date)
+        .filter(models.Payment.date <= end_date)
+        .group_by(
+            models.Payment.collected_milk_id,
+            models.Producer.name,
+            models.Payment.id,
+            models.Payment.date,
+            models.CollectedMilk.producer_id,
+        )
+        .all()
+    )
 
 
 def get_collected_report_by_producer_and_date(
-        db: Session, start_date: str, end_date: str
-        ):
-    return (db.query(models.CollectedMilk.producer_id, models.Producer.name.label("producer_name"), func.sum(models.CollectedMilk.quantity).label("total_collected")) 
-            .join(models.CollectedMilk.producer)
-            .filter(models.CollectedMilk.date >= start_date)
-            .filter(models.CollectedMilk.date <= end_date)
-            .group_by(models.CollectedMilk.producer_id, models.Producer.name)
-            .all()
-            )
+    db: Session, start_date: str, end_date: str
+):
+    return (
+        db.query(
+            models.CollectedMilk.producer_id,
+            models.Producer.name.label("producer_name"),
+            func.sum(models.CollectedMilk.quantity).label("total_collected"),
+        )
+        .join(models.CollectedMilk.producer)
+        .filter(models.CollectedMilk.date >= start_date)
+        .filter(models.CollectedMilk.date <= end_date)
+        .group_by(models.CollectedMilk.producer_id, models.Producer.name)
+        .all()
+    )
 
 
 def get_collected_milk_by_route_driver_and_date(
-        db: Session, start_date: str, end_date: str
-        ):
+    db: Session, start_date: str, end_date: str
+):
     return (
-            db.query(models.CollectedMilk.route_id, models.MilkRoute.name.label("route_name"), func.sum(models.CollectedMilk.quantity).label("milk_quantity"), models.Driver.name.label("driver_name"))
-            .join(models.CollectedMilk.route)
-            .join(models.CollectedMilk.driver)
-            .filter(models.CollectedMilk.date >= start_date)
-            .filter(models.CollectedMilk.date <= end_date)
-            .group_by(models.CollectedMilk.route_id, models.MilkRoute.name, models.Driver.name)
-            .all()
-            )
+        db.query(
+            models.CollectedMilk.route_id,
+            models.MilkRoute.name.label("route_name"),
+            func.sum(models.CollectedMilk.quantity).label("milk_quantity"),
+            models.Driver.name.label("driver_name"),
+        )
+        .join(models.CollectedMilk.route)
+        .join(models.CollectedMilk.driver)
+        .filter(models.CollectedMilk.date >= start_date)
+        .filter(models.CollectedMilk.date <= end_date)
+        .group_by(
+            models.CollectedMilk.route_id, models.MilkRoute.name, models.Driver.name
+        )
+        .all()
+    )
 
 
-def get_collected_milk_by_route_and_date(
-        db: Session, start_date: str, end_date: str
-        ):
+def get_collected_milk_by_route_and_date(db: Session, start_date: str, end_date: str):
     return (
-            db.query(models.CollectedMilk.route_id, models.MilkRoute.name.label("route_name"), func.sum(models.CollectedMilk.quantity).label("milk_quantity"))
-            .join(models.CollectedMilk.route)
-            .filter(models.CollectedMilk.date >= start_date)
-            .filter(models.CollectedMilk.date <= end_date)
-            .group_by(models.CollectedMilk.route_id, models.MilkRoute.name)
-            .all()
+        db.query(
+            models.CollectedMilk.route_id,
+            models.MilkRoute.name.label("route_name"),
+            func.sum(models.CollectedMilk.quantity).label("milk_quantity"),
+        )
+        .join(models.CollectedMilk.route)
+        .filter(models.CollectedMilk.date >= start_date)
+        .filter(models.CollectedMilk.date <= end_date)
+        .group_by(models.CollectedMilk.route_id, models.MilkRoute.name)
+        .all()
+    )
+
+def get_collected_milk_report_by_date(db: Session, start_date: str, end_date: str):
+    start_datetime = datetime.strptime(start_date, "%Y-%m-%d")
+    end_datetime = datetime.strptime(end_date, "%Y-%m-%d")
+
+    if (end_datetime - start_datetime).days > 7:
+        return []
+
+    daily_reports = []
+
+    current_datetime = start_datetime
+
+    while current_datetime <= end_datetime:
+        current_date_str = current_datetime.strftime("%Y-%m-%d")
+
+        daily_report = (
+            db.query(
+                models.CollectedMilk.date,
+                func.round(func.avg(models.CollectedMilk.price), 2).label("milk_price"),
+                func.sum(models.CollectedMilk.quantity).label("milk_collected"),
+                func.sum(models.CollectedMilk.price * models.CollectedMilk.quantity).label(
+                    "total_price"
+                ),
             )
+            .filter(models.CollectedMilk.date == current_date_str)
+            .group_by(models.CollectedMilk.date)
+            .all()
+        )
+
+        if daily_report == []:
+            daily_report = {
+                "date": current_date_str,
+                "day_of_week": current_datetime.strftime("%A"),
+                "milk_price": 0,
+                "milk_collected": 0,
+                "total_price": 0,
+            }
+        else:
+            daily_report = {
+                "date": current_date_str,
+                "day_of_week": current_datetime.strftime("%A"),
+                "milk_price": daily_report[0][1],
+                "milk_collected": daily_report[0][2],
+                "total_price": daily_report[0][3],
+            }
+
+        daily_reports.append(daily_report)
+
+        current_datetime += timedelta(days=1)
+
+    return daily_reports
+
+
+def get_selled_milk_report_by_date(db: Session, start_date: str, end_date: str):
+    # Convert start_date and end_date strings to datetime objects
+    start_datetime = datetime.strptime(start_date, "%Y-%m-%d")
+    end_datetime = datetime.strptime(end_date, "%Y-%m-%d")
+
+    if (end_datetime - start_datetime).days > 7:
+        return []
+
+    # Initialize empty list to store daily reports
+    daily_reports = []
+
+    # Loop through each day in the date range
+    current_datetime = start_datetime
+    while current_datetime <= end_datetime:
+        # Convert current date to string
+        current_date_str = current_datetime.strftime("%Y-%m-%d")
+
+        # Query for milk sold on current day
+        daily_report = (
+            db.query(
+                models.MilkSelled.date,
+                func.round(func.avg(models.MilkSelled.price), 2).label("milk_price"),
+                func.sum(models.MilkSelled.quantity).label("milk_selled"),
+                func.sum(models.MilkSelled.price * models.MilkSelled.quantity).label(
+                    "total_price"
+                ),
+            )
+            .filter(models.MilkSelled.date == current_date_str)
+            .group_by(models.MilkSelled.date)
+            .all()
+        )
+
+
+        if daily_report == []:
+            daily_report = {
+                "date": current_date_str,
+                "day_of_week": current_datetime.strftime("%A"),
+                "milk_price": 0,
+                "milk_selled": 0,
+                "total_price": 0,
+            }
+        else:
+            daily_report = {
+                "date": current_date_str,
+                "day_of_week": current_datetime.strftime("%A"),
+                "milk_price": daily_report[0][1],
+                "milk_selled": daily_report[0][2],
+                "total_price": daily_report[0][3],
+                }
+
+        # Append daily report to the list of daily reports
+        daily_reports.append(daily_report)
+
+        # Move to the next day
+        current_datetime += timedelta(days=1)
+
+    return daily_reports
+
+
+def compare_milk_selled_and_collected_milk_by_date(
+    db: Session, start_date: str, end_date: str
+):
+    start_datetime = datetime.strptime(start_date, "%Y-%m-%d")
+    end_datetime = datetime.strptime(end_date, "%Y-%m-%d")
+
+    if (end_datetime - start_datetime).days > 7:
+        return []
+
+    daily_reports = []
+
+    current_datetime = start_datetime
+    
+    while current_datetime <= end_datetime:
+        current_date_str = current_datetime.strftime("%Y-%m-%d")
+
+        daily_report = (
+            db.query(
+                models.CollectedMilk.date,
+                func.sum(models.CollectedMilk.quantity).label("milk_collected"),
+                func.sum(models.CollectedMilk.price * models.CollectedMilk.quantity).label(
+                    "total_price_collected"
+                ),
+                func.round(func.avg(models.CollectedMilk.price), 2).label("avg_milk_collected_price"),
+                func.sum(models.MilkSelled.quantity).label("milk_selled"),
+                func.sum(models.MilkSelled.price * models.MilkSelled.quantity).label(
+                    "total_price_selled"
+                ),
+                func.round(func.avg(models.MilkSelled.price), 2).label("avg_milk_selled_price"),
+            )
+            .outerjoin(models.MilkSelled, extract('day', models.CollectedMilk.date) == extract('day', models.MilkSelled.date))
+            .filter(models.CollectedMilk.date == current_date_str)
+            .group_by(models.CollectedMilk.date)
+            .all()
+        )
+
+
+        if daily_report == []:
+            daily_report = {
+                "date": current_date_str,
+                "day_of_week": current_datetime.strftime("%A"),
+                "milk_collected": 0,
+                "total_price_collected": 0,
+                "avg_milk_collected_price": 0,
+                "milk_selled": 0,
+                "total_price_selled": 0,
+                "avg_milk_selled_price": 0,
+            }
+        else:
+            milk_collected = daily_report[0][1] if daily_report[0][1] else 0
+            total_price_collected = daily_report[0][2] if daily_report[0][2] else 0
+            avg_milk_collected_price = daily_report[0][3] if daily_report[0][3] else 0
+            milk_selled = daily_report[0][4] if daily_report[0][4] else 0
+            total_price_selled = daily_report[0][5] if daily_report[0][5] else 0
+            avg_milk_selled_price = daily_report[0][6] if daily_report[0][6] else 0
+
+            daily_report = {
+                "date": current_date_str,
+                "day_of_week": current_datetime.strftime("%A"),
+                "milk_collected": milk_collected,
+                "total_price_collected": total_price_collected,
+                "avg_milk_collected_price": avg_milk_collected_price,
+                "milk_selled": milk_selled,
+                "total_price_selled": total_price_selled,
+                "avg_milk_selled_price": avg_milk_selled_price,
+            }
+
+        daily_reports.append(daily_report)
+
+        current_datetime += timedelta(days=1)
+
+    return daily_reports

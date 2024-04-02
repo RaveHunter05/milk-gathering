@@ -14,3 +14,7 @@ test.db
 venv/
 .venv
 .vercel
+
+# Zip files
+
+**/*.zip
