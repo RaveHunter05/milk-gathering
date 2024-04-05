@@ -41,6 +41,7 @@ class Deduction(Base):
     description = Column(String, index=True)
     price = Column(Numeric, index=True)
     date = Column(Date, index=True)
+    paid = Column(Boolean, index=True)
 
     # Dependent Relationships
     payment = relationship("Payment", back_populates="deduction")
@@ -78,6 +79,7 @@ class TransportCost(Base):
     description = Column(String, index=True)
     cost = Column(Numeric, index=True)
     date = Column(Date, index=True)
+    paid = Column(Boolean, index=True)
 
     # Dependent Relationships
     payment = relationship("Payment", back_populates="transport_cost")
@@ -106,9 +108,11 @@ class CollectedMilk(Base):
     producer_id = Column(ForeignKey("producer.id"), index=True)
 
     quantity = Column(Numeric, index=True)
+    name = Column(String, index=True)
     price = Column(Numeric, index=True)
     type = Column(String, index=True)
     date = Column(Date, index=True)
+    paid = Column(Boolean, index=True)
 
     # Foreign Key Relationships
     driver = relationship("Driver", back_populates="collected_milk")

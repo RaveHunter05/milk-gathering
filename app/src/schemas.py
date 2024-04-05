@@ -194,6 +194,7 @@ class CollectedMilk(BaseModel):
     date: date
     type: str
     quantity: Decimal
+    name: str
     price: Decimal
     route_id: int
     driver_id: int
@@ -207,6 +208,7 @@ class CollectedMilkCreate(BaseModel):
     date: date
     type: str
     quantity: Decimal
+    name: str
     price: Decimal
     route_id: int
     driver_id: int
@@ -217,6 +219,7 @@ class CollectedMilkUpdate(BaseModel):
     date: date
     type: str
     quantity: Decimal
+    name: str
     price: Decimal
     route_id: int
     driver_id: int

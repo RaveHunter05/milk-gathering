@@ -32,6 +32,7 @@ def create_deduction(db: Session, deduction: schemas.DeductionCreate):
         description=deduction.description,
         price=deduction.price,
         date=deduction.date,
+        paid=False,
     )
     db.add(db_deduction)
     db.commit()
@@ -146,6 +147,7 @@ def create_transport_cost(db: Session, transport_cost: schemas.TransportCostCrea
         description=transport_cost.description,
         cost=transport_cost.cost,
         date=transport_cost.date,
+        paid=False,
     )
     db.add(db_transport_cost)
     db.commit()
@@ -314,6 +316,19 @@ def create_payment(db: Session, payment: schemas.PaymentCreate):
         transport_cost_id=payment.transport_cost_id,
         collected_milk_id=payment.collected_milk_id,
     )
+
+    current_collected = db.query(models.CollectedMilk).filter_by(id=payment.collected_milk_id).first()
+    if current_collected:
+        current_collected.paid = True
+
+    current_deduction = db.query(models.Deduction).filter_by(id=payment.deduction_id).first()
+    if current_deduction:
+        current_deduction.paid = True
+
+    current_transport_cost = db.query(models.TransportCost).filter_by(id=payment.transport_cost_id).first()
+    if current_transport_cost:
+        current_transport_cost.paid = True
+
     db.add(db_payment)
     db.commit()
     db.refresh(db_payment)
@@ -342,12 +357,14 @@ def get_collected_milks(db: Session, skip: int = 0, limit: int = 100):
 def create_collected_milk(db: Session, collected_milk: schemas.CollectedMilkCreate):
     db_collected_milk = models.CollectedMilk(
         quantity=collected_milk.quantity,
+        name=collected_milk.name,
         price=collected_milk.price,
         date=collected_milk.date,
         type=collected_milk.type,
         route_id=collected_milk.route_id,
         driver_id=collected_milk.driver_id,
         producer_id=collected_milk.producer_id,
+        paid=False,
     )
     db.add(db_collected_milk)
     db.commit()
