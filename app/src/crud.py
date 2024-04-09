@@ -19,6 +19,7 @@ def get_deduction(db: Session, deduction_id: int):
 def get_deductions(db: Session, skip: int = 0, limit: int = 100):
     return (
         db.query(models.Deduction)
+        .filter(models.Deduction.paid == False)
         .order_by(desc(models.Deduction.date))
         .offset(skip)
         .limit(limit)
@@ -134,6 +135,7 @@ def get_transport_cost(db: Session, transport_cost_id: int):
 def get_transport_costs(db: Session, skip: int = 0, limit: int = 100):
     return (
         db.query(models.TransportCost)
+        .filter(models.TransportCost.paid == False)
         .order_by(desc(models.TransportCost.date))
         .offset(skip)
         .limit(limit)
@@ -347,6 +349,7 @@ def get_collected_milk(db: Session, collected_milk_id: int):
 def get_collected_milks(db: Session, skip: int = 0, limit: int = 100):
     return (
         db.query(models.CollectedMilk)
+        .filter(models.CollectedMilk.paid == False)
         .order_by(desc(models.CollectedMilk.date))
         .offset(skip)
         .limit(limit)
@@ -380,6 +383,34 @@ def update_collected_milk(db: Session, collected_milk: schemas.CollectedMilkUpda
     db.commit()
     db.refresh(db_collected_milk)
     return db_collected_milk
+
+
+def get_last_payments_report(db: Session):
+    return (
+        db.query(
+            models.Payment,
+            models.CollectedMilk.producer_id,
+            models.Producer.name.label("producer_name"),
+            func.sum(models.CollectedMilk.quantity).label("total_collected"),
+            func.sum(models.Payment.total_amount).label("total_payment"),
+            models.Payment.date,
+        )
+        .join(
+            models.CollectedMilk,
+            models.Payment.collected_milk_id == models.CollectedMilk.id,
+        )
+        .join(models.Producer, models.CollectedMilk.producer_id == models.Producer.id)
+        .group_by(
+            models.Payment.collected_milk_id,
+            models.Producer.name,
+            models.Payment.id,
+            models.Payment.date,
+            models.CollectedMilk.producer_id,
+        )
+        .order_by(desc(models.Payment.date))
+        .limit(10)
+        .all()
+    )
 
 
 def get_payments_report_by_date(db: Session, start_date: str, end_date: str):

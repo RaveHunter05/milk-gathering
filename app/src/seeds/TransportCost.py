@@ -17,6 +17,7 @@ class TransportCost:
             "name": fake.name(),
             "description": fake.text(),
             "cost": fake.random_int(),
+            "paid": fake.boolean(),
             "date": fake.date()
         }
 
@@ -25,6 +26,7 @@ class TransportCost:
             "name": fake.name(),
             "description": fake.text(),
             "cost": fake.random_int(),
+            "paid": fake.boolean(),
             "date": fake.date()
         }
 

@@ -196,6 +196,7 @@ class CollectedMilk(BaseModel):
     quantity: Decimal
     name: str
     price: Decimal
+    paid: bool
     route_id: int
     driver_id: int
     producer_id: int
@@ -230,8 +231,8 @@ class Payment(BaseModel):
     id: int
     date: date
     total_amount: Decimal
-    deduction_id: int
-    transport_cost_id: int
+    deduction_id: Optional[int]
+    transport_cost_id: Optional[int]
     collected_milk_id: int
 
     class Config:
@@ -241,8 +242,8 @@ class Payment(BaseModel):
 class PaymentCreate(BaseModel):
     date: date
     total_amount: Decimal
-    deduction_id: Optional[int]
-    transport_cost_id: Optional[int]
+    deduction_id: Optional[int] = None
+    transport_cost_id: Optional[int] = None
     collected_milk_id: int
 
 
@@ -253,12 +254,22 @@ class PaymentUpdate(BaseModel):
     transport_cost_id: Optional[int]
     collected_milk_id: int
 
+
+class LastPaymentsReport(BaseModel):
+    producer_id: int
+    producer_name: str
+    total_collected: int
+    total_payment: int
+    date: date
+
+
 class PaymentsByProducer(BaseModel):
     producer_id: int
     producer_name: str
     total_collected: int
     total_payment: int
     date: date
+
 
 class CollectedMilkReport(BaseModel):
     producer_id: int

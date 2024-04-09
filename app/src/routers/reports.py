@@ -88,3 +88,11 @@ def selled_vs_collected_milk_report_by_date(
     db: Session = Depends(get_db),
 ):
     return crud.compare_milk_selled_and_collected_milk_by_date(db, start_date, end_date)
+
+# Get last payments report
+@router.get("/last-payments-report", response_model=List[schemas.LastPaymentsReport], tags=["reports"])
+def last_payments_report(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db),
+):
+    return crud.get_last_payments_report(db)
