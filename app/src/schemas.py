@@ -93,31 +93,6 @@ class DriverUpdate(BaseModel):
     date: date
 
 
-class TransportCost(BaseModel):
-    id: int
-    cost: Decimal
-    name: str
-    description: str
-    date: date
-
-    class Config:
-        from_attributes = True
-
-
-class TransportCostCreate(BaseModel):
-    cost: int
-    name: str
-    description: str
-    date: date
-
-
-class TransportCostUpdate(BaseModel):
-    cost: int
-    name: str
-    description: str
-    date: date
-
-
 class Producer(BaseModel):
     id: int
     name: str
@@ -232,7 +207,6 @@ class Payment(BaseModel):
     date: date
     total_amount: Decimal
     deduction_id: Optional[int]
-    transport_cost_id: Optional[int]
     collected_milk_id: int
 
     class Config:
@@ -243,7 +217,6 @@ class PaymentCreate(BaseModel):
     date: date
     total_amount: Decimal
     deduction_id: Optional[int] = None
-    transport_cost_id: Optional[int] = None
     collected_milk_id: int
 
 
@@ -251,7 +224,6 @@ class PaymentUpdate(BaseModel):
     date: date
     total_amount: Decimal
     deduction_id: Optional[int]
-    transport_cost_id: Optional[int]
     collected_milk_id: int
 
 
@@ -315,3 +287,29 @@ class CollectedMilkByDate(BaseModel):
     milk_price: Decimal
     milk_collected: Decimal
     total_price: Decimal
+
+
+class CollectedMilkByDateAndRoute(BaseModel):
+    date: date
+    day_of_week: str
+    route_name: str
+    milk_collected: Decimal
+    total_price_collected: Decimal
+
+
+class MilkSellsReportByCheeseMaker(BaseModel):
+    date: date
+    day_of_week: str
+    cheese_maker_name: str
+    total_milk_selled: Decimal
+    total_price_selled: Decimal
+
+
+class PaymentReportByProducer(BaseModel):
+    date: date
+    day_of_week: str
+    producer_name: str
+    total_payment: Decimal
+    total_milk_collected: Decimal
+    total_price_collected: Decimal
+    total_deduction: Decimal

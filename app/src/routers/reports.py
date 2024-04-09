@@ -96,3 +96,33 @@ def last_payments_report(
     db: Session = Depends(get_db),
 ):
     return crud.get_last_payments_report(db)
+
+# Get collected milk report by date and route
+@router.get("/collected-milk-report-by-date-and-route", response_model=List[schemas.CollectedMilkByDateAndRoute], tags=["reports"])
+def collected_milk_report_by_date_and_route(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    start_date: Annotated[str, "Start date"],
+    end_date: Annotated[str, "End date"],
+    db: Session = Depends(get_db),
+):
+    return crud.get_collected_milk_report_by_date_and_route(db, start_date, end_date)
+
+# Get milk sells report by cheese_maker and date
+@router.get("/milk-sells-report-by-cheese-maker-and-date", response_model=List[schemas.MilkSellsReportByCheeseMaker], tags=["reports"])
+def milk_sells_report_by_cheese_maker_and_date(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    start_date: Annotated[str, "Start date"],
+    end_date: Annotated[str, "End date"],
+    db: Session = Depends(get_db),
+):
+    return crud.get_milk_sells_report_by_cheese_maker_and_date(db, start_date, end_date)
+
+# Get payment report by producer and date
+@router.get("/payment-report-by-producer-and-date", response_model=List[schemas.PaymentReportByProducer], tags=["reports"])
+def payment_report_by_producer_and_date(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    start_date: Annotated[str, "Start date"],
+    end_date: Annotated[str, "End date"],
+    db: Session = Depends(get_db),
+):
+    return crud.get_payment_report_by_producer_and_date(db, start_date, end_date)

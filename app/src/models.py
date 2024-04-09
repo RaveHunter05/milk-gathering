@@ -71,20 +71,6 @@ class Driver(Base):
     collected_milk = relationship("CollectedMilk", back_populates="driver")
 
 
-class TransportCost(Base):
-    __tablename__ = "transport_cost"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    description = Column(String, index=True)
-    cost = Column(Numeric, index=True)
-    date = Column(Date, index=True)
-    paid = Column(Boolean, index=True)
-
-    # Dependent Relationships
-    payment = relationship("Payment", back_populates="transport_cost")
-
-
 class Producer(Base):
     __tablename__ = "producer"
 
@@ -158,7 +144,6 @@ class Payment(Base):
     # Foreign Keys
     collected_milk_id = Column(ForeignKey("collected_milk.id"), index=True)
     deduction_id = Column(ForeignKey("deduction.id"), index=True, nullable=True)
-    transport_cost_id = Column(ForeignKey("transport_cost.id"), index=True, nullable=True)
 
     total_amount = Column(Numeric, index=True)
     date = Column(Date, index=True)
@@ -166,4 +151,3 @@ class Payment(Base):
     # Foreign Key Relationships
     collected_milk = relationship("CollectedMilk", back_populates="payment")
     deduction = relationship("Deduction", back_populates="payment")
-    transport_cost = relationship("TransportCost", back_populates="payment")

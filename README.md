@@ -45,5 +45,4 @@ python -m uvicorn src.api:app --reload
 - Milk route
 - Payments
 - Producer
-- Transport costs
 - Deductions

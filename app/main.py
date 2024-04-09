@@ -6,7 +6,7 @@ from mangum import Mangum
 
 from app.src import models
 
-from app.src.routers import payment, milk_routes, drivers, transport_costs, producers, auth, deductions, reports, collected_milks, cheese_maker, milk_selleds
+from app.src.routers import payment, milk_routes, drivers, producers, auth, deductions, reports, collected_milks, cheese_maker, milk_selleds
 
 from app.src.database import engine
 
@@ -30,7 +30,6 @@ app.include_router(milk_routes.router)
 app.include_router(collected_milks.router)
 app.include_router(payment.router)
 app.include_router(producers.router)
-app.include_router(transport_costs.router)
 app.include_router(deductions.router)
 app.include_router(reports.router)
 

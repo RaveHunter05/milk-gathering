@@ -123,52 +123,6 @@ def update_driver(db: Session, driver: schemas.DriverUpdate):
     return driver
 
 
-# Transport Cost
-def get_transport_cost(db: Session, transport_cost_id: int):
-    return (
-        db.query(models.TransportCost)
-        .filter(models.TransportCost.id == transport_cost_id)
-        .first()
-    )
-
-
-def get_transport_costs(db: Session, skip: int = 0, limit: int = 100):
-    return (
-        db.query(models.TransportCost)
-        .filter(models.TransportCost.paid == False)
-        .order_by(desc(models.TransportCost.date))
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
-
-
-def create_transport_cost(db: Session, transport_cost: schemas.TransportCostCreate):
-    db_transport_cost = models.TransportCost(
-        name=transport_cost.name,
-        description=transport_cost.description,
-        cost=transport_cost.cost,
-        date=transport_cost.date,
-        paid=False,
-    )
-    db.add(db_transport_cost)
-    db.commit()
-    db.refresh(db_transport_cost)
-    return db_transport_cost
-
-
-def update_transport_cost(db: Session, transport_cost: schemas.TransportCostUpdate):
-    transport_cost = (
-        db.query(models.TransportCost).filter_by(id=transport_cost.id).first()
-    )
-    transport_cost.cost = transport_cost.Cost
-    transport_cost.name = transport_cost.name
-    transport_cost.description = transport_cost.description
-    db.commit()
-    db.commit()
-    return transport_cost
-
-
 # Producer
 def get_producer(db: Session, producer_id: int):
     return db.query(models.Producer).filter(models.Producer.id == producer_id).first()
@@ -315,7 +269,6 @@ def create_payment(db: Session, payment: schemas.PaymentCreate):
         total_amount=payment.total_amount,
         date=payment.date,
         deduction_id=payment.deduction_id,
-        transport_cost_id=payment.transport_cost_id,
         collected_milk_id=payment.collected_milk_id,
     )
 
@@ -326,10 +279,6 @@ def create_payment(db: Session, payment: schemas.PaymentCreate):
     current_deduction = db.query(models.Deduction).filter_by(id=payment.deduction_id).first()
     if current_deduction:
         current_deduction.paid = True
-
-    current_transport_cost = db.query(models.TransportCost).filter_by(id=payment.transport_cost_id).first()
-    if current_transport_cost:
-        current_transport_cost.paid = True
 
     db.add(db_payment)
     db.commit()
@@ -591,8 +540,7 @@ def get_selled_milk_report_by_date(db: Session, start_date: str, end_date: str):
                 "date": current_date_str,
                 "day_of_week": current_datetime.strftime("%A"),
                 "milk_price": daily_report[0][1],
-                "milk_selled": daily_report[0][2],
-                "total_price": daily_report[0][3],
+                "milk_selled": daily_report[0][2], "total_price": daily_report[0][3],
                 }
 
         # Append daily report to the list of daily reports
@@ -672,6 +620,176 @@ def compare_milk_selled_and_collected_milk_by_date(
             }
 
         daily_reports.append(daily_report)
+
+        current_datetime += timedelta(days=1)
+
+    return daily_reports
+
+
+
+
+
+# Payment report by producer and by date
+def get_payment_report_by_producer_and_date(db: Session, start_date: str, end_date: str):
+    start_datetime = datetime.strptime(start_date, "%Y-%m-%d")
+    end_datetime = datetime.strptime(end_date, "%Y-%m-%d")
+
+    if (end_datetime - start_datetime).days > 7:
+        return []
+
+    daily_reports = []
+
+    current_datetime = start_datetime
+
+    while current_datetime <= end_datetime:
+        current_date_str = current_datetime.strftime("%Y-%m-%d")
+
+        for producer in db.query(models.Producer).all():
+            daily_report = (
+                db.query(
+                    models.Payment.date,
+                    models.Producer.name.label("producer_name"),
+                    func.sum(models.Payment.total_amount).label("total_payment"),
+                    func.sum(models.CollectedMilk.quantity).label("total_milk_collected"),
+                    func.sum(models.CollectedMilk.price * models.CollectedMilk.quantity).label("total_price_collected"),
+                    func.coalesce(func.sum(models.Deduction.price), 0).label("total_deduction"),
+                )
+                .outerjoin(models.Deduction)
+                .join(models.CollectedMilk, models.Payment.collected_milk_id == models.CollectedMilk.id)
+                .join(models.Producer, models.CollectedMilk.producer_id == models.Producer.id)
+                .filter(models.Payment.date == current_date_str)
+                .filter(models.Producer.id == producer.id)
+                .group_by(models.Payment.date, models.Producer.name)
+                .all()
+            )
+
+            if daily_report == []:
+                daily_report = {
+                    "date": current_date_str,
+                    "day_of_week": current_datetime.strftime("%A"),
+                    "producer_name": producer.name,
+                    "total_payment": 0,
+                    "total_milk_collected": 0,
+                    "total_price_collected": 0,
+                    "total_deduction": 0
+                }
+            else:
+                daily_report = {
+                    "date": current_date_str,
+                    "day_of_week": current_datetime.strftime("%A"),
+                    "producer_name": daily_report[0][1],
+                    "total_payment": daily_report[0][2],
+                    "total_milk_collected": daily_report[0][3],
+                    "total_price_collected": daily_report[0][4],
+                    "total_deduction": daily_report[0][5]
+                }
+
+            daily_reports.append(daily_report)
+        current_datetime += timedelta(days=1)
+    return daily_reports
+
+
+# Milk sells report by cheese_maker and by date
+def get_milk_sells_report_by_cheese_maker_and_date(db: Session, start_date: str, end_date: str):
+    start_datetime = datetime.strptime(start_date, "%Y-%m-%d")
+    end_datetime = datetime.strptime(end_date, "%Y-%m-%d")
+
+    if (end_datetime - start_datetime).days > 7:
+        return []
+
+    daily_reports = []
+
+    current_datetime = start_datetime
+
+    while current_datetime <= end_datetime:
+        current_date_str = current_datetime.strftime("%Y-%m-%d")
+
+        for cheese_maker in db.query(models.CheeseMaker).all():
+            daily_report = (
+                db.query(
+                    models.MilkSelled.date,
+                    models.CheeseMaker.name.label("cheese_maker_name"),
+                    func.sum(models.MilkSelled.quantity).label("total_milk_selled"),
+                    func.sum(models.MilkSelled.price * models.MilkSelled.quantity).label("total_price_selled"),
+                )
+                .join(models.CheeseMaker)
+                .filter(models.MilkSelled.date == current_date_str)
+                .filter(models.CheeseMaker.id == cheese_maker.id)
+                .group_by(models.MilkSelled.date, models.CheeseMaker.name)
+                .all()
+            )
+
+            if daily_report == []:
+                daily_report = {
+                    "date": current_date_str,
+                    "day_of_week": current_datetime.strftime("%A"),
+                    "cheese_maker_name": cheese_maker.name,
+                    "total_milk_selled": 0,
+                    "total_price_selled": 0,
+                }
+            else:
+                daily_report = {
+                    "date": current_date_str,
+                    "day_of_week": current_datetime.strftime("%A"),
+                    "cheese_maker_name": daily_report[0][1],
+                    "total_milk_selled": daily_report[0][2],
+                    "total_price_selled": daily_report[0][3],
+                }
+
+            daily_reports.append(daily_report)
+
+        current_datetime += timedelta(days=1)
+
+    return daily_reports
+
+# Collected by route by day
+def get_collected_milk_report_by_date_and_route(db: Session, start_date: str, end_date: str):
+    start_datetime = datetime.strptime(start_date, "%Y-%m-%d")
+    end_datetime = datetime.strptime(end_date, "%Y-%m-%d")
+
+    if (end_datetime - start_datetime).days > 7:
+        return []
+
+    daily_reports = []
+
+    current_datetime = start_datetime
+
+    while current_datetime <= end_datetime:
+        current_date_str = current_datetime.strftime("%Y-%m-%d")
+
+        for route in db.query(models.MilkRoute).all():
+            daily_report = (
+                db.query(
+                    models.CollectedMilk.date,
+                    models.MilkRoute.name.label("route_name"),
+                    func.sum(models.CollectedMilk.quantity).label("milk_collected"),
+                    func.sum(models.CollectedMilk.price * models.CollectedMilk.quantity).label("total_price_collected"),
+                )
+                .join(models.MilkRoute)
+                .filter(models.CollectedMilk.date == current_date_str)
+                .filter(models.MilkRoute.id == route.id)
+                .group_by(models.CollectedMilk.date, models.MilkRoute.name)
+                .all()
+            )
+
+            if daily_report == []:
+                daily_report = {
+                    "date": current_date_str,
+                    "day_of_week": current_datetime.strftime("%A"),
+                    "route_name": route.name,
+                    "milk_collected": 0,
+                    "total_price_collected": 0,
+                }
+            else:
+                daily_report = {
+                    "date": current_date_str,
+                    "day_of_week": current_datetime.strftime("%A"),
+                    "route_name": daily_report[0][1],
+                    "milk_collected": daily_report[0][2],
+                    "total_price_collected": daily_report[0][3],
+                }
+
+            daily_reports.append(daily_report)
 
         current_datetime += timedelta(days=1)
 
