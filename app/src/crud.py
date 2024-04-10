@@ -653,13 +653,14 @@ def get_payment_report_by_producer_and_date(db: Session, start_date: str, end_da
                     func.sum(models.CollectedMilk.quantity).label("total_milk_collected"),
                     func.sum(models.CollectedMilk.price * models.CollectedMilk.quantity).label("total_price_collected"),
                     func.coalesce(func.sum(models.Deduction.price), 0).label("total_deduction"),
+                    models.Producer.id.label("producer_id"),
                 )
                 .outerjoin(models.Deduction)
                 .join(models.CollectedMilk, models.Payment.collected_milk_id == models.CollectedMilk.id)
                 .join(models.Producer, models.CollectedMilk.producer_id == models.Producer.id)
                 .filter(models.Payment.date == current_date_str)
                 .filter(models.Producer.id == producer.id)
-                .group_by(models.Payment.date, models.Producer.name)
+                .group_by(models.Payment.date, models.Producer.name, models.Producer.id)
                 .all()
             )
 
@@ -671,7 +672,8 @@ def get_payment_report_by_producer_and_date(db: Session, start_date: str, end_da
                     "total_payment": 0,
                     "total_milk_collected": 0,
                     "total_price_collected": 0,
-                    "total_deduction": 0
+                    "total_deduction": 0,
+                    "producer_id": producer.id,
                 }
             else:
                 daily_report = {
@@ -681,12 +683,24 @@ def get_payment_report_by_producer_and_date(db: Session, start_date: str, end_da
                     "total_payment": daily_report[0][2],
                     "total_milk_collected": daily_report[0][3],
                     "total_price_collected": daily_report[0][4],
-                    "total_deduction": daily_report[0][5]
+                    "total_deduction": daily_report[0][5],
+                    "producer_id": daily_report[0][6],
                 }
 
             daily_reports.append(daily_report)
         current_datetime += timedelta(days=1)
-    return daily_reports
+
+    ordered_report = []
+    report_ids = []
+
+    for report in daily_reports:
+        if report["producer_id"] not in report_ids:
+            report_ids.append(report["producer_id"])
+            report_id = report["producer_id"]
+            report_report = list(filter(lambda x: x["producer_id"] == report_id, daily_reports))
+            ordered_report.append(report_report)
+
+    return ordered_report
 
 
 # Milk sells report by cheese_maker and by date
@@ -704,18 +718,19 @@ def get_milk_sells_report_by_cheese_maker_and_date(db: Session, start_date: str,
     while current_datetime <= end_datetime:
         current_date_str = current_datetime.strftime("%Y-%m-%d")
 
-        for cheese_maker in db.query(models.CheeseMaker).all():
+        for report in db.query(models.CheeseMaker).all():
             daily_report = (
                 db.query(
                     models.MilkSelled.date,
                     models.CheeseMaker.name.label("cheese_maker_name"),
                     func.sum(models.MilkSelled.quantity).label("total_milk_selled"),
                     func.sum(models.MilkSelled.price * models.MilkSelled.quantity).label("total_price_selled"),
+                    models.CheeseMaker.id.label("cheese_maker_id"),
                 )
                 .join(models.CheeseMaker)
                 .filter(models.MilkSelled.date == current_date_str)
-                .filter(models.CheeseMaker.id == cheese_maker.id)
-                .group_by(models.MilkSelled.date, models.CheeseMaker.name)
+                .filter(models.CheeseMaker.id == report.id)
+                .group_by(models.MilkSelled.date, models.CheeseMaker.name, models.CheeseMaker.id)
                 .all()
             )
 
@@ -723,9 +738,10 @@ def get_milk_sells_report_by_cheese_maker_and_date(db: Session, start_date: str,
                 daily_report = {
                     "date": current_date_str,
                     "day_of_week": current_datetime.strftime("%A"),
-                    "cheese_maker_name": cheese_maker.name,
+                    "cheese_maker_name": report.name,
                     "total_milk_selled": 0,
                     "total_price_selled": 0,
+                    "cheese_maker_id": report.id,
                 }
             else:
                 daily_report = {
@@ -734,13 +750,24 @@ def get_milk_sells_report_by_cheese_maker_and_date(db: Session, start_date: str,
                     "cheese_maker_name": daily_report[0][1],
                     "total_milk_selled": daily_report[0][2],
                     "total_price_selled": daily_report[0][3],
+                    "cheese_maker_id": daily_report[0][4],
                 }
 
             daily_reports.append(daily_report)
 
         current_datetime += timedelta(days=1)
 
-    return daily_reports
+    ordered_report = []
+    report_ids = []
+
+    for report in daily_reports:
+        if report["cheese_maker_id"] not in report_ids:
+            report_ids.append(report["cheese_maker_id"])
+            report_id = report["cheese_maker_id"]
+            report_report = list(filter(lambda x: x["cheese_maker_id"] == report_id, daily_reports))
+            ordered_report.append(report_report)
+
+    return ordered_report
 
 # Collected by route by day
 def get_collected_milk_report_by_date_and_route(db: Session, start_date: str, end_date: str):
@@ -764,11 +791,12 @@ def get_collected_milk_report_by_date_and_route(db: Session, start_date: str, en
                     models.MilkRoute.name.label("route_name"),
                     func.sum(models.CollectedMilk.quantity).label("milk_collected"),
                     func.sum(models.CollectedMilk.price * models.CollectedMilk.quantity).label("total_price_collected"),
+                    models.MilkRoute.id.label("route_id"),
                 )
                 .join(models.MilkRoute)
                 .filter(models.CollectedMilk.date == current_date_str)
                 .filter(models.MilkRoute.id == route.id)
-                .group_by(models.CollectedMilk.date, models.MilkRoute.name)
+                .group_by(models.CollectedMilk.date, models.MilkRoute.name, models.MilkRoute.id)
                 .all()
             )
 
@@ -779,6 +807,7 @@ def get_collected_milk_report_by_date_and_route(db: Session, start_date: str, en
                     "route_name": route.name,
                     "milk_collected": 0,
                     "total_price_collected": 0,
+                    "route_id": route.id,
                 }
             else:
                 daily_report = {
@@ -787,10 +816,21 @@ def get_collected_milk_report_by_date_and_route(db: Session, start_date: str, en
                     "route_name": daily_report[0][1],
                     "milk_collected": daily_report[0][2],
                     "total_price_collected": daily_report[0][3],
+                    "route_id": daily_report[0][4],
                 }
 
             daily_reports.append(daily_report)
 
         current_datetime += timedelta(days=1)
 
-    return daily_reports
+    # list of lists by route
+    ordered_report = []
+    report_ids = []
+    for report in daily_reports:
+        if report["route_id"] not in report_ids:
+            report_ids.append(report["route_id"])
+            report_id = report["route_id"]
+            report_report = list(filter(lambda x: x["route_id"] == report_id, daily_reports))
+            ordered_report.append(report_report)
+
+    return ordered_report

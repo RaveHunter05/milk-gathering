@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-from typing import List
+from typing import List, Dict
 
 from app.src.database import SessionLocal, engine
 from sqlalchemy.orm import Session
