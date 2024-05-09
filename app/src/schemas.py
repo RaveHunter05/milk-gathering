@@ -97,6 +97,7 @@ class Producer(BaseModel):
     id: int
     name: str
     description: str
+    phone: str
     date: date
 
     class Config:
@@ -167,7 +168,6 @@ class MilkSelledUpdate(BaseModel):
 class CollectedMilk(BaseModel):
     id: int
     date: date
-    type: str
     quantity: Decimal
     name: str
     price: Decimal
@@ -182,7 +182,6 @@ class CollectedMilk(BaseModel):
 
 class CollectedMilkCreate(BaseModel):
     date: date
-    type: str
     quantity: Decimal
     name: str
     price: Decimal
@@ -193,7 +192,6 @@ class CollectedMilkCreate(BaseModel):
 
 class CollectedMilkUpdate(BaseModel):
     date: date
-    type: str
     quantity: Decimal
     name: str
     price: Decimal
@@ -309,7 +307,7 @@ class PaymentReportByProducer(BaseModel):
     date: date
     day_of_week: str
     producer_name: str
-    total_payment: Decimal
     total_milk_collected: Decimal
     total_price_collected: Decimal
     total_deduction: Decimal
+    total_payment: Decimal

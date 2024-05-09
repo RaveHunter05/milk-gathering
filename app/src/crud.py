@@ -312,7 +312,6 @@ def create_collected_milk(db: Session, collected_milk: schemas.CollectedMilkCrea
         name=collected_milk.name,
         price=collected_milk.price,
         date=collected_milk.date,
-        type=collected_milk.type,
         route_id=collected_milk.route_id,
         driver_id=collected_milk.driver_id,
         producer_id=collected_milk.producer_id,
@@ -379,6 +378,7 @@ def get_payments_report_by_date(db: Session, start_date: str, end_date: str):
         .join(models.Producer, models.CollectedMilk.producer_id == models.Producer.id)
         .filter(models.Payment.date >= start_date)
         .filter(models.Payment.date <= end_date)
+        .filter(models.Payment.amount > 0)
         .group_by(
             models.Payment.collected_milk_id,
             models.Producer.name,
@@ -402,6 +402,7 @@ def get_collected_report_by_producer_and_date(
         .join(models.CollectedMilk.producer)
         .filter(models.CollectedMilk.date >= start_date)
         .filter(models.CollectedMilk.date <= end_date)
+        .filter(models.CollectedMilk.quantity > 0)
         .group_by(models.CollectedMilk.producer_id, models.Producer.name)
         .all()
     )
@@ -438,6 +439,7 @@ def get_collected_milk_by_route_and_date(db: Session, start_date: str, end_date:
         .join(models.CollectedMilk.route)
         .filter(models.CollectedMilk.date >= start_date)
         .filter(models.CollectedMilk.date <= end_date)
+        .filter(models.CollectedMilk.quantity > 0)
         .group_by(models.CollectedMilk.route_id, models.MilkRoute.name)
         .all()
     )
@@ -643,16 +645,18 @@ def get_payment_report_by_producer_and_date(db: Session, start_date: str, end_da
 
     while current_datetime <= end_datetime:
         current_date_str = current_datetime.strftime("%Y-%m-%d")
-
-        for producer in db.query(models.Producer).all():
+        
+        # bring only producers with collected milk
+        producersWithCollected = db.query(models.Producer).join(models.CollectedMilk).filter(models.CollectedMilk.quantity > 0).all()
+        for producer in producersWithCollected:
             daily_report = (
                 db.query(
                     models.Payment.date,
                     models.Producer.name.label("producer_name"),
-                    func.sum(models.Payment.total_amount).label("total_payment"),
                     func.sum(models.CollectedMilk.quantity).label("total_milk_collected"),
                     func.sum(models.CollectedMilk.price * models.CollectedMilk.quantity).label("total_price_collected"),
                     func.coalesce(func.sum(models.Deduction.price), 0).label("total_deduction"),
+                    func.sum(models.Payment.total_amount).label("total_payment"),
                     models.Producer.id.label("producer_id"),
                 )
                 .outerjoin(models.Deduction)
@@ -669,10 +673,10 @@ def get_payment_report_by_producer_and_date(db: Session, start_date: str, end_da
                     "date": current_date_str,
                     "day_of_week": current_datetime.strftime("%A"),
                     "producer_name": producer.name,
-                    "total_payment": 0,
                     "total_milk_collected": 0,
                     "total_price_collected": 0,
                     "total_deduction": 0,
+                    "total_payment": 0,
                     "producer_id": producer.id,
                 }
             else:
@@ -680,10 +684,10 @@ def get_payment_report_by_producer_and_date(db: Session, start_date: str, end_da
                     "date": current_date_str,
                     "day_of_week": current_datetime.strftime("%A"),
                     "producer_name": daily_report[0][1],
-                    "total_payment": daily_report[0][2],
-                    "total_milk_collected": daily_report[0][3],
-                    "total_price_collected": daily_report[0][4],
-                    "total_deduction": daily_report[0][5],
+                    "total_milk_collected": daily_report[0][2],
+                    "total_price_collected": daily_report[0][3],
+                    "total_deduction": daily_report[0][4],
+                    "total_payment": daily_report[0][5],
                     "producer_id": daily_report[0][6],
                 }
 

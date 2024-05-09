@@ -96,7 +96,6 @@ class CollectedMilk(Base):
     quantity = Column(Numeric, index=True)
     name = Column(String, index=True)
     price = Column(Numeric, index=True)
-    type = Column(String, index=True)
     date = Column(Date, index=True)
     paid = Column(Boolean, index=True)
 
