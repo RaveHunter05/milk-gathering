@@ -50,6 +50,15 @@ def update_deduction(db: Session, deduction: schemas.DeductionUpdate):
     return deduction
 
 
+def delete_deduction(db: Session, deduction_id: int):
+    db_deduction = (
+        db.query(models.Deduction).filter(models.Deduction.id == deduction_id).first()
+    )
+    db.delete(db_deduction)
+    db.commit()
+    return db_deduction
+
+
 # Milk Route
 def get_route(db: Session, route_id: int):
     return db.query(models.MilkRoute).filter(models.MilkRoute.id == route_id).first()
@@ -123,6 +132,13 @@ def update_driver(db: Session, driver: schemas.DriverUpdate):
     return driver
 
 
+def delete_driver(db: Session, driver_id: int):
+    db_driver = db.query(models.Driver).filter(models.Driver.id == driver_id).first()
+    db.delete(db_driver)
+    db.commit()
+    return db_driver
+
+
 # Producer
 def get_producer(db: Session, producer_id: int):
     return db.query(models.Producer).filter(models.Producer.id == producer_id).first()
@@ -157,6 +173,13 @@ def update_producer(db: Session, producer: schemas.ProducerUpdate):
     producer.description = producer.description
     db.commit()
     return producer
+
+
+def delete_producer(db: Session, producer_id: int):
+    db_producer = db.query(models.Producer).filter(models.Producer.id == producer_id).first()
+    db.delete(db_producer)
+    db.commit()
+    return db_producer
 
 
 # CheeeseMaker
@@ -204,6 +227,15 @@ def update_cheese_maker(db: Session, updated_cheese_maker: schemas.CheeseMakerUp
     return updated_cheese_maker
 
 
+def delete_cheese_maker(db: Session, cheese_maker_id: int):
+    db_cheese_maker = (
+        db.query(models.CheeseMaker).filter(models.CheeseMaker.id == cheese_maker_id).first()
+    )
+    db.delete(db_cheese_maker)
+    db.commit()
+    return db_cheese_maker
+
+
 # Milk Selled
 
 
@@ -245,6 +277,15 @@ def update_milk_selled(db: Session, milk_selled: schemas.MilkSelledUpdate):
     db_milk_selled.price = milk_selled.price
     db_milk_selled.cheese_maker_id = milk_selled.cheese_maker_id
 
+    db.commit()
+    return db_milk_selled
+
+
+def delete_milk_selled(db: Session, milk_selled_id: int):
+    db_milk_selled = (
+        db.query(models.MilkSelled).filter(models.MilkSelled.id == milk_selled_id).first()
+    )
+    db.delete(db_milk_selled)
     db.commit()
     return db_milk_selled
 
@@ -330,6 +371,15 @@ def update_collected_milk(db: Session, collected_milk: schemas.CollectedMilkUpda
     db.add(db_collected_milk)
     db.commit()
     db.refresh(db_collected_milk)
+    return db_collected_milk
+
+
+def delete_collected_milk(db: Session, collected_milk_id: int):
+    db_collected_milk = (
+        db.query(models.CollectedMilk).filter(models.CollectedMilk.id == collected_milk_id).first()
+    )
+    db.delete(db_collected_milk)
+    db.commit()
     return db_collected_milk
 
 
@@ -643,12 +693,13 @@ def get_payment_report_by_producer_and_date(db: Session, start_date: str, end_da
 
     current_datetime = start_datetime
 
+    # bring only producers with collected milk
+    producersWithPayment = db.query(models.Producer).join(models.CollectedMilk).filter(models.CollectedMilk.paid == True).filter(models.CollectedMilk.date >= start_date).filter(models.CollectedMilk.date <= end_date).all()
+
     while current_datetime <= end_datetime:
         current_date_str = current_datetime.strftime("%Y-%m-%d")
         
-        # bring only producers with collected milk
-        producersWithCollected = db.query(models.Producer).join(models.CollectedMilk).filter(models.CollectedMilk.quantity > 0).all()
-        for producer in producersWithCollected:
+        for producer in producersWithPayment:
             daily_report = (
                 db.query(
                     models.Payment.date,

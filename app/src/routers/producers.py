@@ -61,3 +61,15 @@ def update_producer(
 ):
     db_producer = crud.update_producer(db=db, producer=producer)
     return db_producer
+
+
+@router.delete(
+    "/{producer_id}", response_model=schemas.Producer, tags=["producers"]
+)
+def delete_producer(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    producer_id: int,
+    db: Session = Depends(get_db),
+):
+    db_producer = crud.delete_producer(db=db, producer_id=producer_id)
+    return db_producer

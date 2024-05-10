@@ -70,3 +70,17 @@ def update_milk_selled(
 ):
     db_milk_selled = crud.update_milk_selled(db=db, milk_selled=milk_selled)
     return db_milk_selled
+
+
+@router.delete(
+    "/{milk_selled_id}",
+    response_model=schemas.MilkSelled,
+    tags=["milk selled"],
+)
+def delete_milk_selled(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    milk_selled_id: int,
+    db: Session = Depends(get_db),
+):
+    db_milk_selled = crud.delete_milk_selled(db=db, milk_selled_id=milk_selled_id)
+    return db_milk_selled

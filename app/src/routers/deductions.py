@@ -61,3 +61,15 @@ def update_deduction(
 ):
     db_deduction = crud.update_deduction(db=db, deduction=deduction)
     return db_deduction
+
+
+@router.delete(
+    "/{deduction_id}", response_model=schemas.Deduction, tags=["deductions"]
+)
+def delete_deduction(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    deduction_id: int,
+    db: Session = Depends(get_db),
+):
+    db_deduction = crud.delete_deduction(db=db, deduction_id=deduction_id)
+    return db_deduction

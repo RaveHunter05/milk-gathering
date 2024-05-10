@@ -61,3 +61,14 @@ def update_cheese_maker(
 ):
     db_cheese_maker = crud.update_cheese_maker(db=db, cheese_maker=cheese_maker)
     return db_cheese_maker
+
+
+@router.delete(
+    "/{cheese_maker_id}", response_model=schemas.CheeseMaker, tags=["cheese_makers"])   
+def delete_cheese_maker(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    cheese_maker_id: int,
+    db: Session = Depends(get_db),
+):
+    db_cheese_maker = crud.delete_cheese_maker(db=db, cheese_maker_id=cheese_maker_id)
+    return db_cheese_maker
